@@ -1,0 +1,10 @@
+{
+  "name": "PrepXpert",
+  "short_name": "PrepXpert",
+  "description": "Smart Placement Preparation Portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f7b900",
+  "icons": []
+}
