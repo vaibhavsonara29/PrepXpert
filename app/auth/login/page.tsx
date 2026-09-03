@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -23,6 +24,7 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           password,
@@ -60,7 +62,11 @@ export default function LoginPage() {
   return (
     <main style={containerStyle}>
       <form onSubmit={handleLogin} style={cardStyle}>
-        <h1 style={headingStyle}>Login</h1>
+        <h1 style={headingStyle}>Sign In</h1>
+
+        <p style={subheadingStyle}>
+          Sign in to continue to your PrepXpert dashboard.
+        </p>
 
         <input
           type="email"
@@ -90,7 +96,7 @@ export default function LoginPage() {
             opacity: loading ? 0.6 : 1,
           }}
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Signing in..." : "Sign In / Login"}
         </button>
 
         {message && (
@@ -107,6 +113,15 @@ export default function LoginPage() {
             {message}
           </p>
         )}
+
+        {/* Create Account option */}
+        <div style={accountLinkBox}>
+          <span>Don't have an account?</span>
+
+          <Link href="/auth/register" style={linkStyle}>
+            Create Account
+          </Link>
+        </div>
       </form>
     </main>
   );
@@ -133,7 +148,16 @@ const cardStyle = {
 };
 
 const headingStyle = {
-  marginBottom: "20px",
+  marginBottom: "8px",
+  color: "#111",
+};
+
+const subheadingStyle = {
+  marginTop: 0,
+  marginBottom: "22px",
+  color: "#666",
+  lineHeight: 1.5,
+  fontSize: "14px",
 };
 
 const inputStyle = {
@@ -153,4 +177,21 @@ const buttonStyle = {
   border: "none",
   borderRadius: "6px",
   cursor: "pointer",
+  fontWeight: "600",
+};
+
+const accountLinkBox = {
+  marginTop: "22px",
+  paddingTop: "18px",
+  borderTop: "1px solid #eee",
+  textAlign: "center" as const,
+  fontSize: "14px",
+  color: "#666",
+};
+
+const linkStyle = {
+  marginLeft: "6px",
+  color: "#111",
+  fontWeight: "700",
+  textDecoration: "none",
 };
