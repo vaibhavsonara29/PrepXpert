@@ -1,5 +1,7 @@
 "use client";
 
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { useEffect, useMemo, useState } from "react";
 
 type Experience = {
@@ -58,29 +60,28 @@ type Analysis = {
 const STORAGE_KEY = "prepxpert-resume";
 
 export default function ResumePage() {
-  const [activeSection, setActiveSection] =
-    useState("profile");
+  const [activeSection, setActiveSection] = useState("profile");
+  const [template, setTemplate] = useState("modern");
+  const [saved, setSaved] = useState(false);
 
-  const [template, setTemplate] =
-    useState("modern");
-
-  const [saved, setSaved] =
+  const [linkedinImporting, setLinkedinImporting] =
     useState(false);
 
-  const [analyzing, setAnalyzing] =
-    useState(false);
+  const [linkedinMessage, setLinkedinMessage] =
+    useState("");
 
+  const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] =
     useState<Analysis | null>(null);
-
   const [analysisError, setAnalysisError] =
     useState("");
 
-  const [uploading, setUploading] =
-    useState(false);
-
+  const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] =
     useState("");
+
+  const [downloading, setDownloading] =
+    useState(false);
 
   const [uploadedResume, setUploadedResume] =
     useState<{
@@ -90,22 +91,19 @@ export default function ResumePage() {
       text: string;
     } | null>(null);
 
-  const [profile, setProfile] =
-    useState<Profile>({
-      name: "",
-      role: "",
-      email: "",
-      phone: "",
-      location: "",
-      linkedin: "",
-      github: "",
-      website: "",
-      summary: "",
-    });
+  const [profile, setProfile] = useState<Profile>({
+    name: "",
+    role: "",
+    email: "",
+    phone: "",
+    location: "",
+    linkedin: "",
+    github: "",
+    website: "",
+    summary: "",
+  });
 
-  const [skills, setSkills] = useState<
-    string[]
-  >([
+  const [skills, setSkills] = useState<string[]>([
     "JavaScript",
     "React",
     "Node.js",
@@ -147,40 +145,35 @@ export default function ResumePage() {
   useEffect(() => {
     try {
       const savedResume =
-        localStorage.getItem(
-          STORAGE_KEY
-        );
+        localStorage.getItem(STORAGE_KEY);
 
       if (!savedResume) return;
 
-      const data =
-        JSON.parse(savedResume);
+      const data = JSON.parse(savedResume);
 
-      if (data.profile)
+      if (data.profile) {
         setProfile(data.profile);
+      }
 
-      if (data.skills)
+      if (data.skills) {
         setSkills(data.skills);
+      }
 
-      if (data.experience)
-        setExperience(
-          data.experience
-        );
+      if (data.experience) {
+        setExperience(data.experience);
+      }
 
-      if (data.education)
-        setEducation(
-          data.education
-        );
+      if (data.education) {
+        setEducation(data.education);
+      }
 
-      if (data.projects)
-        setProjects(
-          data.projects
-        );
+      if (data.projects) {
+        setProjects(data.projects);
+      }
 
-      if (data.template)
-        setTemplate(
-          data.template
-        );
+      if (data.template) {
+        setTemplate(data.template);
+      }
     } catch (error) {
       console.error(
         "Unable to load saved resume:",
@@ -247,9 +240,61 @@ export default function ResumePage() {
     }));
   }
 
+  async function importLinkedInProfile() {
+    try {
+      setLinkedinImporting(true);
+      setLinkedinMessage("");
+
+      const response = await fetch(
+        "/api/linkedin/profile",
+        {
+          method: "GET",
+          cache: "no-store",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Unable to import LinkedIn profile."
+        );
+      }
+
+      const linkedinProfile = data.profile;
+
+      setProfile((prev) => ({
+        ...prev,
+        name:
+          linkedinProfile?.name ||
+          prev.name,
+        email:
+          linkedinProfile?.email ||
+          prev.email,
+      }));
+
+      setLinkedinMessage(
+        "✓ LinkedIn profile imported successfully."
+      );
+    } catch (error) {
+      console.error(
+        "LinkedIn resume import error:",
+        error
+      );
+
+      setLinkedinMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to import LinkedIn profile."
+      );
+    } finally {
+      setLinkedinImporting(false);
+    }
+  }
+
   function addSkill() {
-    const skill =
-      skillInput.trim();
+    const skill = skillInput.trim();
 
     if (!skill) return;
 
@@ -263,9 +308,7 @@ export default function ResumePage() {
     setSkillInput("");
   }
 
-  function removeSkill(
-    skill: string
-  ) {
+  function removeSkill(skill: string) {
     setSkills((prev) =>
       prev.filter(
         (item) => item !== skill
@@ -373,9 +416,7 @@ export default function ResumePage() {
 
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify(
-          resumeData
-        )
+        JSON.stringify(resumeData)
       );
 
       setSaved(true);
@@ -409,34 +450,34 @@ export default function ResumePage() {
         projects,
       };
 
-      const response =
-        await fetch(
-          "/api/resume/analyze",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify(
-              resumeData
-            ),
-          }
-        );
+      const response = await fetch(
+        "/api/resume/analyze",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify(
+            resumeData
+          ),
+        }
+      );
 
       const data =
         await response.json();
 
-      if (!response.ok || !data.success) {
+      if (
+        !response.ok ||
+        !data.success
+      ) {
         throw new Error(
           data.message ||
             "Resume analysis failed"
         );
       }
 
-      setAnalysis(
-        data.analysis
-      );
+      setAnalysis(data.analysis);
 
       localStorage.setItem(
         "resumeAnalysis",
@@ -467,8 +508,13 @@ export default function ResumePage() {
       setUploading(true);
       setUploadError("");
 
-      const formData = new FormData();
-      formData.append("file", file);
+      const formData =
+        new FormData();
+
+      formData.append(
+        "file",
+        file
+      );
 
       const response = await fetch(
         "/api/resume/upload",
@@ -481,7 +527,10 @@ export default function ResumePage() {
       const data =
         await response.json();
 
-      if (!response.ok || !data.success) {
+      if (
+        !response.ok ||
+        !data.success
+      ) {
         throw new Error(
           data.message ||
             "Resume upload failed"
@@ -495,7 +544,9 @@ export default function ResumePage() {
         text: data.text,
       };
 
-      setUploadedResume(uploaded);
+      setUploadedResume(
+        uploaded
+      );
 
       localStorage.setItem(
         "prepxpert-uploaded-resume",
@@ -517,6 +568,21 @@ export default function ResumePage() {
     }
   }
 
+  function normalizeUrl(value: string) {
+    const trimmed = value.trim();
+
+    if (!trimmed) return "";
+
+    if (
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://")
+    ) {
+      return trimmed;
+    }
+
+    return `https://${trimmed}`;
+  }
+
   function handleResumeFileChange(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -530,8 +596,322 @@ export default function ResumePage() {
     event.target.value = "";
   }
 
-  function downloadPDF() {
-    window.print();
+  /*
+   * ========================================================
+   * PDF DOWNLOAD
+   * ========================================================
+   *
+   * Only .resume-paper is converted into PDF.
+   *
+   * If the resume fits on one A4 page:
+   *       -> exactly ONE PDF page
+   *
+   * If the resume is longer:
+   *       -> additional pages are created only when needed.
+   *
+   * Website footer/header/editor are never captured.
+   */
+
+  async function downloadPDF() {
+    const resumeElement =
+      document.querySelector(
+        ".resume-paper"
+      ) as HTMLElement | null;
+
+    if (!resumeElement) {
+      alert(
+        "Resume preview not found."
+      );
+
+      return;
+    }
+
+    try {
+      setDownloading(true);
+
+      /*
+       * Temporarily create a fixed A4-width
+       * capture area.
+       */
+      const originalWidth =
+        resumeElement.style.width;
+
+      const originalMaxWidth =
+        resumeElement.style.maxWidth;
+
+      const originalMinHeight =
+        resumeElement.style.minHeight;
+
+      const originalBoxShadow =
+        resumeElement.style.boxShadow;
+
+      resumeElement.style.width =
+        "794px";
+
+      resumeElement.style.maxWidth =
+        "794px";
+
+      resumeElement.style.minHeight =
+        "auto";
+
+      resumeElement.style.boxShadow =
+        "none";
+
+      /*
+       * Wait for browser layout.
+       */
+      await new Promise((resolve) =>
+        setTimeout(resolve, 300)
+      );
+
+      /*
+       * Get the actual content height.
+       *
+       * This is important because we don't want
+       * an artificially forced 1123px height to
+       * create an unnecessary second page.
+       */
+      const contentHeight =
+        resumeElement.scrollHeight;
+
+      const canvas =
+        await html2canvas(
+          resumeElement,
+          {
+            scale: 2,
+            useCORS: true,
+            backgroundColor:
+              "#ffffff",
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            width: 794,
+            height: contentHeight,
+            windowWidth: 794,
+            windowHeight:
+              Math.max(
+                contentHeight,
+                1123
+              ),
+          }
+        );
+
+      /*
+       * Restore preview styles.
+       */
+      resumeElement.style.width =
+        originalWidth;
+
+      resumeElement.style.maxWidth =
+        originalMaxWidth;
+
+      resumeElement.style.minHeight =
+        originalMinHeight;
+
+      resumeElement.style.boxShadow =
+        originalBoxShadow;
+
+      const pdf =
+        new jsPDF({
+          orientation:
+            "portrait",
+          unit: "mm",
+          format: "a4",
+          compress: true,
+        });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+
+      /*
+       * Convert canvas pixels to A4 mm.
+       */
+      const pxPerMm =
+        canvas.width /
+        pageWidth;
+
+      /*
+       * A4 page height in canvas pixels.
+       */
+      const pageHeightPx =
+        Math.floor(
+          pageHeight * pxPerMm
+        );
+
+      /*
+       * If content is already smaller than
+       * one A4 page, add it once only.
+       */
+      if (
+        canvas.height <=
+        pageHeightPx
+      ) {
+        const imgData =
+          canvas.toDataURL(
+            "image/png",
+            1.0
+          );
+
+        const imgHeight =
+          (canvas.height *
+            pageWidth) /
+          canvas.width;
+
+        pdf.addImage(
+          imgData,
+          "PNG",
+          0,
+          0,
+          pageWidth,
+          imgHeight,
+          undefined,
+          "FAST"
+        );
+      } else {
+        /*
+         * Long resume:
+         * split the canvas into exact A4-height
+         * sections.
+         */
+        let sourceY = 0;
+        let pageNumber = 0;
+
+        while (
+          sourceY <
+          canvas.height
+        ) {
+          const remainingHeight =
+            canvas.height -
+            sourceY;
+
+          const currentHeight =
+            Math.min(
+              pageHeightPx,
+              remainingHeight
+            );
+
+          const pageCanvas =
+            document.createElement(
+              "canvas"
+            );
+
+          pageCanvas.width =
+            canvas.width;
+
+          pageCanvas.height =
+            currentHeight;
+
+          const context =
+            pageCanvas.getContext(
+              "2d"
+            );
+
+          if (!context) {
+            throw new Error(
+              "Unable to create PDF canvas."
+            );
+          }
+
+          context.fillStyle =
+            "#ffffff";
+
+          context.fillRect(
+            0,
+            0,
+            pageCanvas.width,
+            pageCanvas.height
+          );
+
+          context.drawImage(
+            canvas,
+            0,
+            sourceY,
+            canvas.width,
+            currentHeight,
+            0,
+            0,
+            canvas.width,
+            currentHeight
+          );
+
+          const pageImage =
+            pageCanvas.toDataURL(
+              "image/png",
+              1.0
+            );
+
+          const pageImageHeight =
+            (currentHeight *
+              pageWidth) /
+            canvas.width;
+
+          /*
+           * Only add a new page if this is
+           * not the first page.
+           */
+          if (pageNumber > 0) {
+            pdf.addPage();
+          }
+
+          pdf.addImage(
+            pageImage,
+            "PNG",
+            0,
+            0,
+            pageWidth,
+            pageImageHeight,
+            undefined,
+            "FAST"
+          );
+
+          addProjectPdfLinksForPage(
+            pdf,
+            resumeElement,
+            canvas,
+            pageWidth,
+            pageHeightPx,
+            sourceY,
+            currentHeight
+          );
+
+          sourceY +=
+            currentHeight;
+
+          pageNumber++;
+        }
+      }
+
+      /*
+       * Clean filename.
+       */
+      const safeName =
+        profile.name
+          .trim()
+          .replace(
+            /[^a-zA-Z0-9]+/g,
+            "_"
+          )
+          .replace(
+            /^_+|_+$/g,
+            ""
+          ) ||
+        "Resume";
+
+      pdf.save(
+        `${safeName}_Resume.pdf`
+      );
+    } catch (error) {
+      console.error(
+        "PDF DOWNLOAD ERROR:",
+        error
+      );
+
+      alert(
+        "Unable to generate PDF. Please try again."
+      );
+    } finally {
+      setDownloading(false);
+    }
   }
 
   return (
@@ -539,7 +919,8 @@ export default function ResumePage() {
       <header className="topbar">
         <div>
           <div className="brand">
-            Prep<span>Xpert</span>
+            Prep
+            <span>Xpert</span>
           </div>
 
           <div className="page-title">
@@ -552,19 +933,24 @@ export default function ResumePage() {
             {uploading
               ? "Uploading..."
               : "📄 Upload Resume"}
+
             <input
               type="file"
               accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               onChange={
                 handleResumeFileChange
               }
-              disabled={uploading}
+              disabled={
+                uploading
+              }
             />
           </label>
 
           <button
             className="ghost-btn"
-            onClick={saveDraft}
+            onClick={
+              saveDraft
+            }
           >
             {saved
               ? "✓ Saved"
@@ -573,16 +959,22 @@ export default function ResumePage() {
 
           <button
             className="download-btn"
-            onClick={downloadPDF}
+            onClick={
+              downloadPDF
+            }
+            disabled={
+              downloading
+            }
           >
-            Download PDF
+            {downloading
+              ? "Generating PDF..."
+              : "Download PDF"}
           </button>
         </div>
       </header>
 
       <div className="workspace">
         <aside className="editor-panel">
-
           <div className="completion-card">
             <div className="completion-header">
               <div>
@@ -593,7 +985,8 @@ export default function ResumePage() {
                 <small>
                   {completion >= 80
                     ? "Excellent"
-                    : completion >= 50
+                    : completion >=
+                      50
                     ? "Good progress"
                     : "Keep building"}
                 </small>
@@ -636,10 +1029,14 @@ export default function ResumePage() {
                     .getElementById(
                       "uploaded-resume-text"
                     )
-                    ?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    })
+                    ?.scrollIntoView(
+                      {
+                        behavior:
+                          "smooth",
+                        block:
+                          "center",
+                      }
+                    )
                 }
               >
                 View Extracted Text
@@ -659,17 +1056,19 @@ export default function ResumePage() {
               className="uploaded-text-card"
             >
               <strong>
-                Extracted Resume Content
+                Extracted Resume
+                Content
               </strong>
 
               <p>
-                The uploaded resume was read successfully.
-                You can use this content while completing
-                your Resume Studio fields.
+                The uploaded resume was
+                read successfully.
               </p>
 
               <textarea
-                value={uploadedResume.text}
+                value={
+                  uploadedResume.text
+                }
                 readOnly
                 rows={10}
               />
@@ -775,7 +1174,6 @@ export default function ResumePage() {
           </div>
 
           <div className="form-area">
-
             {activeSection ===
               "profile" && (
               <section>
@@ -784,13 +1182,46 @@ export default function ResumePage() {
                   description="Build a strong professional identity."
                 />
 
+                <div className="linkedin-import-card">
+                  <div>
+                    <strong>
+                      🔗 Import from LinkedIn
+                    </strong>
+
+                    <p>
+                      Your LinkedIn account is connected.
+                      Import your basic profile information
+                      into the resume.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="linkedin-import-btn"
+                    onClick={importLinkedInProfile}
+                    disabled={linkedinImporting}
+                  >
+                    {linkedinImporting
+                      ? "Importing..."
+                      : "Import LinkedIn Profile"}
+                  </button>
+
+                  {linkedinMessage && (
+                    <div className="linkedin-import-message">
+                      {linkedinMessage}
+                    </div>
+                  )}
+                </div>
+
                 <Input
                   label="Full Name"
                   placeholder="e.g. Vaibhav Christian"
                   value={
                     profile.name
                   }
-                  onChange={(value) =>
+                  onChange={(
+                    value
+                  ) =>
                     updateProfile(
                       "name",
                       value
@@ -804,7 +1235,9 @@ export default function ResumePage() {
                   value={
                     profile.role
                   }
-                  onChange={(value) =>
+                  onChange={(
+                    value
+                  ) =>
                     updateProfile(
                       "role",
                       value
@@ -819,7 +1252,9 @@ export default function ResumePage() {
                     value={
                       profile.email
                     }
-                    onChange={(value) =>
+                    onChange={(
+                      value
+                    ) =>
                       updateProfile(
                         "email",
                         value
@@ -833,7 +1268,9 @@ export default function ResumePage() {
                     value={
                       profile.phone
                     }
-                    onChange={(value) =>
+                    onChange={(
+                      value
+                    ) =>
                       updateProfile(
                         "phone",
                         value
@@ -848,7 +1285,9 @@ export default function ResumePage() {
                   value={
                     profile.location
                   }
-                  onChange={(value) =>
+                  onChange={(
+                    value
+                  ) =>
                     updateProfile(
                       "location",
                       value
@@ -862,7 +1301,9 @@ export default function ResumePage() {
                   value={
                     profile.linkedin
                   }
-                  onChange={(value) =>
+                  onChange={(
+                    value
+                  ) =>
                     updateProfile(
                       "linkedin",
                       value
@@ -876,7 +1317,9 @@ export default function ResumePage() {
                   value={
                     profile.github
                   }
-                  onChange={(value) =>
+                  onChange={(
+                    value
+                  ) =>
                     updateProfile(
                       "github",
                       value
@@ -890,7 +1333,9 @@ export default function ResumePage() {
                   value={
                     profile.website
                   }
-                  onChange={(value) =>
+                  onChange={(
+                    value
+                  ) =>
                     updateProfile(
                       "website",
                       value
@@ -909,10 +1354,13 @@ export default function ResumePage() {
                     value={
                       profile.summary
                     }
-                    onChange={(e) =>
+                    onChange={(
+                      e
+                    ) =>
                       updateProfile(
                         "summary",
-                        e.target.value
+                        e.target
+                          .value
                       )
                     }
                   />
@@ -934,12 +1382,17 @@ export default function ResumePage() {
                     value={
                       skillInput
                     }
-                    onChange={(e) =>
+                    onChange={(
+                      e
+                    ) =>
                       setSkillInput(
-                        e.target.value
+                        e.target
+                          .value
                       )
                     }
-                    onKeyDown={(e) => {
+                    onKeyDown={(
+                      e
+                    ) => {
                       if (
                         e.key ===
                         "Enter"
@@ -951,7 +1404,9 @@ export default function ResumePage() {
                   />
 
                   <button
-                    onClick={addSkill}
+                    onClick={
+                      addSkill
+                    }
                   >
                     Add
                   </button>
@@ -959,9 +1414,13 @@ export default function ResumePage() {
 
                 <div className="skill-list">
                   {skills.map(
-                    (skill) => (
+                    (
+                      skill
+                    ) => (
                       <span
-                        key={skill}
+                        key={
+                          skill
+                        }
                       >
                         {skill}
 
@@ -986,15 +1445,16 @@ export default function ResumePage() {
 
                   <div className="ai-content">
                     <strong>
-                      AI Resume Analyzer
+                      AI Resume
+                      Analyzer
                     </strong>
 
                     <p>
                       Analyze your resume
                       with AI to identify
-                      strengths, weak areas,
-                      missing skills and ATS
-                      improvements.
+                      strengths, weak
+                      areas, missing skills
+                      and ATS improvements.
                     </p>
 
                     <button
@@ -1021,7 +1481,6 @@ export default function ResumePage() {
 
                 {analysis && (
                   <div className="analysis-result">
-
                     <div className="analysis-title">
                       <div>
                         <strong>
@@ -1037,7 +1496,9 @@ export default function ResumePage() {
 
                       <div className="score-box">
                         <strong>
-                          {analysis.score}
+                          {
+                            analysis.score
+                          }
                         </strong>
 
                         <span>
@@ -1047,10 +1508,11 @@ export default function ResumePage() {
                     </div>
 
                     <div className="analysis-stats">
-
                       <div>
                         <strong>
-                          {analysis.atsScore}
+                          {
+                            analysis.atsScore
+                          }
                         </strong>
 
                         <span>
@@ -1060,14 +1522,15 @@ export default function ResumePage() {
 
                       <div>
                         <strong>
-                          {analysis.priority}
+                          {
+                            analysis.priority
+                          }
                         </strong>
 
                         <span>
                           Priority
                         </span>
                       </div>
-
                     </div>
 
                     <AnalysisList
@@ -1123,7 +1586,6 @@ export default function ResumePage() {
                         }
                       </p>
                     </div>
-
                   </div>
                 )}
               </section>
@@ -1138,10 +1600,15 @@ export default function ResumePage() {
                 />
 
                 {experience.map(
-                  (item, index) => (
+                  (
+                    item,
+                    index
+                  ) => (
                     <div
                       className="repeat-card"
-                      key={index}
+                      key={
+                        index
+                      }
                     >
                       <Input
                         label="Company"
@@ -1149,7 +1616,9 @@ export default function ResumePage() {
                         value={
                           item.company
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateExperience(
                             index,
                             "company",
@@ -1164,7 +1633,9 @@ export default function ResumePage() {
                         value={
                           item.role
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateExperience(
                             index,
                             "role",
@@ -1179,7 +1650,9 @@ export default function ResumePage() {
                         value={
                           item.duration
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateExperience(
                             index,
                             "duration",
@@ -1198,11 +1671,14 @@ export default function ResumePage() {
                           value={
                             item.description
                           }
-                          onChange={(e) =>
+                          onChange={(
+                            e
+                          ) =>
                             updateExperience(
                               index,
                               "description",
-                              e.target.value
+                              e.target
+                                .value
                             )
                           }
                         />
@@ -1231,10 +1707,15 @@ export default function ResumePage() {
                 />
 
                 {education.map(
-                  (item, index) => (
+                  (
+                    item,
+                    index
+                  ) => (
                     <div
                       className="repeat-card"
-                      key={index}
+                      key={
+                        index
+                      }
                     >
                       <Input
                         label="Degree"
@@ -1242,7 +1723,9 @@ export default function ResumePage() {
                         value={
                           item.degree
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateEducation(
                             index,
                             "degree",
@@ -1257,7 +1740,9 @@ export default function ResumePage() {
                         value={
                           item.institute
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateEducation(
                             index,
                             "institute",
@@ -1273,7 +1758,9 @@ export default function ResumePage() {
                           value={
                             item.duration
                           }
-                          onChange={(value) =>
+                          onChange={(
+                            value
+                          ) =>
                             updateEducation(
                               index,
                               "duration",
@@ -1288,7 +1775,9 @@ export default function ResumePage() {
                           value={
                             item.score
                           }
-                          onChange={(value) =>
+                          onChange={(
+                            value
+                          ) =>
                             updateEducation(
                               index,
                               "score",
@@ -1321,10 +1810,15 @@ export default function ResumePage() {
                 />
 
                 {projects.map(
-                  (item, index) => (
+                  (
+                    item,
+                    index
+                  ) => (
                     <div
                       className="repeat-card"
-                      key={index}
+                      key={
+                        index
+                      }
                     >
                       <Input
                         label="Project Name"
@@ -1332,7 +1826,9 @@ export default function ResumePage() {
                         value={
                           item.name
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateProject(
                             index,
                             "name",
@@ -1347,7 +1843,9 @@ export default function ResumePage() {
                         value={
                           item.tech
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateProject(
                             index,
                             "tech",
@@ -1358,11 +1856,13 @@ export default function ResumePage() {
 
                       <Input
                         label="Project Link"
-                        placeholder="github.com/..."
+                        placeholder="https://github.com/username/project"
                         value={
                           item.link
                         }
-                        onChange={(value) =>
+                        onChange={(
+                          value
+                        ) =>
                           updateProject(
                             index,
                             "link",
@@ -1382,11 +1882,14 @@ export default function ResumePage() {
                           value={
                             item.description
                           }
-                          onChange={(e) =>
+                          onChange={(
+                            e
+                          ) =>
                             updateProject(
                               index,
                               "description",
-                              e.target.value
+                              e.target
+                                .value
                             )
                           }
                         />
@@ -1422,7 +1925,9 @@ export default function ResumePage() {
                   ].map(
                     (item) => (
                       <button
-                        key={item}
+                        key={
+                          item
+                        }
                         className={
                           template ===
                           item
@@ -1462,7 +1967,6 @@ export default function ResumePage() {
         </aside>
 
         <section className="preview-panel">
-
           <div className="preview-toolbar">
             <span>
               Live Preview
@@ -1472,6 +1976,10 @@ export default function ResumePage() {
               ✓ ATS Friendly
             </span>
           </div>
+
+          {/* ==================================================
+              ONLY THIS DIV IS USED FOR PDF GENERATION
+             ================================================== */}
 
           <div
             className={`resume-paper ${template}`}
@@ -1527,7 +2035,9 @@ export default function ResumePage() {
                   {skills.map(
                     (skill) => (
                       <span
-                        key={skill}
+                        key={
+                          skill
+                        }
                       >
                         {skill}
                       </span>
@@ -1543,24 +2053,35 @@ export default function ResumePage() {
             ) && (
               <ResumeSection title="EXPERIENCE">
                 {experience.map(
-                  (item, index) =>
+                  (
+                    item,
+                    index
+                  ) =>
                     item.company && (
                       <div
                         className="resume-item"
-                        key={index}
+                        key={
+                          index
+                        }
                       >
                         <div className="resume-item-top">
                           <strong>
-                            {item.role}
+                            {
+                              item.role
+                            }
                           </strong>
 
                           <span>
-                            {item.duration}
+                            {
+                              item.duration
+                            }
                           </span>
                         </div>
 
                         <b>
-                          {item.company}
+                          {
+                            item.company
+                          }
                         </b>
 
                         {item.description && (
@@ -1582,19 +2103,28 @@ export default function ResumePage() {
             ) && (
               <ResumeSection title="EDUCATION">
                 {education.map(
-                  (item, index) =>
+                  (
+                    item,
+                    index
+                  ) =>
                     item.degree && (
                       <div
                         className="resume-item"
-                        key={index}
+                        key={
+                          index
+                        }
                       >
                         <div className="resume-item-top">
                           <strong>
-                            {item.degree}
+                            {
+                              item.degree
+                            }
                           </strong>
 
                           <span>
-                            {item.duration}
+                            {
+                              item.duration
+                            }
                           </span>
                         </div>
 
@@ -1606,7 +2136,9 @@ export default function ResumePage() {
 
                         {item.score && (
                           <p>
-                            {item.score}
+                            {
+                              item.score
+                            }
                           </p>
                         )}
                       </div>
@@ -1621,20 +2153,29 @@ export default function ResumePage() {
             ) && (
               <ResumeSection title="PROJECTS">
                 {projects.map(
-                  (item, index) =>
+                  (
+                    item,
+                    index
+                  ) =>
                     item.name && (
                       <div
                         className="resume-item"
-                        key={index}
+                        key={
+                          index
+                        }
                       >
                         <strong>
-                          {item.name}
+                          {
+                            item.name
+                          }
                         </strong>
 
                         {item.tech && (
                           <p>
                             <b>
-                              {item.tech}
+                              {
+                                item.tech
+                              }
                             </b>
                           </p>
                         )}
@@ -1649,7 +2190,13 @@ export default function ResumePage() {
 
                         {item.link && (
                           <p className="project-link">
-                            {item.link}
+                            <a
+                              href={normalizeUrl(item.link)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {item.link}
+                            </a>
                           </p>
                         )}
                       </div>
@@ -1674,8 +2221,6 @@ export default function ResumePage() {
         .resume-page {
           min-height: 100vh;
           width: 100%;
-          max-width: 100%;
-          overflow-x: hidden;
           background: #f5f6f8;
           color: #151515;
           font-family:
@@ -1685,7 +2230,6 @@ export default function ResumePage() {
             BlinkMacSystemFont,
             "Segoe UI",
             sans-serif;
-          box-sizing: border-box;
         }
 
         .resume-page *,
@@ -1702,7 +2246,12 @@ export default function ResumePage() {
           align-items: center;
           justify-content: space-between;
           gap: 20px;
-          background: rgba(255, 255, 255, 0.96);
+          background: rgba(
+            255,
+            255,
+            255,
+            0.96
+          );
           border-bottom: 1px solid #e8e8e8;
           position: sticky;
           top: 0;
@@ -1731,13 +2280,11 @@ export default function ResumePage() {
           align-items: center;
           justify-content: flex-end;
           gap: 10px;
-          min-width: 0;
           flex-wrap: wrap;
         }
 
         button {
           font-family: inherit;
-          max-width: 100%;
         }
 
         .ghost-btn,
@@ -1760,6 +2307,11 @@ export default function ResumePage() {
           color: #161616;
         }
 
+        .download-btn:disabled {
+          opacity: 0.6;
+          cursor: wait;
+        }
+
         .upload-btn {
           border: 1px solid #ddd;
           background: #fff;
@@ -1771,12 +2323,6 @@ export default function ResumePage() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          white-space: nowrap;
-        }
-
-        .upload-btn:hover {
-          border-color: #e4b500;
-          background: #fffdf2;
         }
 
         .upload-btn input {
@@ -1788,13 +2334,17 @@ export default function ResumePage() {
           max-width: 1500px;
           margin: 0 auto;
           display: grid;
-          grid-template-columns: 460px minmax(0, 1fr);
-          min-height: calc(100vh - 72px);
+          grid-template-columns: 460px minmax(
+            0,
+            1fr
+          );
+          min-height: calc(
+            100vh - 72px
+          );
         }
 
         .editor-panel {
           min-width: 0;
-          width: 100%;
           background: #fff;
           border-right: 1px solid #e5e5e5;
         }
@@ -1830,23 +2380,12 @@ export default function ResumePage() {
           transition: width 0.4s ease;
         }
 
-        /* ONLY this navigation is horizontally scrollable */
         .section-tabs {
           display: flex;
           gap: 5px;
-          width: 100%;
-          max-width: 100%;
           padding: 12px;
           overflow-x: auto;
-          overflow-y: hidden;
-          overscroll-behavior-x: contain;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: thin;
           border-bottom: 1px solid #eee;
-        }
-
-        .section-tabs::-webkit-scrollbar {
-          height: 5px;
         }
 
         .section-tabs button {
@@ -1868,38 +2407,25 @@ export default function ResumePage() {
 
         .form-area {
           width: 100%;
-          min-width: 0;
           padding: 26px;
           overflow: hidden;
         }
 
         .form-area section {
           width: 100%;
-          min-width: 0;
-          animation: appear 0.3s ease;
-        }
-
-        @keyframes appear {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
         }
 
         .two-col {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
           gap: 12px;
         }
 
         .input-wrap,
         .textarea-wrap {
           width: 100%;
-          min-width: 0;
           margin-bottom: 15px;
         }
 
@@ -1915,25 +2441,74 @@ export default function ResumePage() {
         textarea {
           width: 100%;
           max-width: 100%;
-          box-sizing: border-box;
           border: 1px solid #ddd;
           border-radius: 9px;
           padding: 11px 12px;
           outline: none;
           font-size: 14px;
           background: #fff;
-          transition: 0.2s;
         }
 
         input:focus,
         textarea:focus {
           border-color: #e4b500;
-          box-shadow: 0 0 0 3px #fff6ca;
+          box-shadow:
+            0 0 0 3px
+            #fff6ca;
         }
 
         textarea {
           resize: vertical;
           font-family: inherit;
+        }
+
+        .linkedin-import-card {
+          margin-bottom: 20px;
+          padding: 15px;
+          border: 1px solid #e7d98f;
+          background: #fffdf0;
+          border-radius: 11px;
+        }
+
+        .linkedin-import-card strong {
+          display: block;
+          font-size: 14px;
+          margin-bottom: 5px;
+        }
+
+        .linkedin-import-card p {
+          margin: 0;
+          color: #777;
+          font-size: 12px;
+          line-height: 1.5;
+        }
+
+        .linkedin-import-btn {
+          margin-top: 13px;
+          border: 0;
+          border-radius: 8px;
+          padding: 9px 13px;
+          background: #0a66c2;
+          color: #fff;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 700;
+        }
+
+        .linkedin-import-btn:hover {
+          background: #084f96;
+        }
+
+        .linkedin-import-btn:disabled {
+          opacity: 0.6;
+          cursor: wait;
+        }
+
+        .linkedin-import-message {
+          margin-top: 9px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #18723a;
         }
 
         .upload-card {
@@ -1949,16 +2524,10 @@ export default function ResumePage() {
           flex-wrap: wrap;
         }
 
-        .upload-card > div:first-child {
-          min-width: 0;
-          flex: 1 1 220px;
-        }
-
         .upload-card p {
           margin: 4px 0 0;
           color: #777;
           font-size: 12px;
-          overflow-wrap: anywhere;
         }
 
         .view-upload-btn {
@@ -1987,14 +2556,12 @@ export default function ResumePage() {
           border: 1px solid #e5e5e5;
           border-radius: 11px;
           background: #fff;
-          min-width: 0;
         }
 
         .uploaded-text-card p {
           margin: 5px 0 10px;
           color: #777;
           font-size: 12px;
-          line-height: 1.5;
         }
 
         .uploaded-text-card textarea {
@@ -2006,12 +2573,11 @@ export default function ResumePage() {
         .skill-input {
           display: flex;
           gap: 8px;
-          width: 100%;
         }
 
         .skill-input input {
-          min-width: 0;
           flex: 1;
+          min-width: 0;
         }
 
         .skill-input button,
@@ -2022,7 +2588,6 @@ export default function ResumePage() {
           padding: 10px 15px;
           border-radius: 8px;
           cursor: pointer;
-          white-space: nowrap;
         }
 
         .skill-list {
@@ -2037,8 +2602,6 @@ export default function ResumePage() {
           padding: 7px 10px;
           border-radius: 20px;
           font-size: 13px;
-          max-width: 100%;
-          overflow-wrap: anywhere;
         }
 
         .skill-list button {
@@ -2061,7 +2624,6 @@ export default function ResumePage() {
 
         .ai-icon {
           font-size: 22px;
-          flex: 0 0 auto;
         }
 
         .ai-content {
@@ -2098,7 +2660,6 @@ export default function ResumePage() {
           color: #b91c1c;
           border-radius: 9px;
           font-size: 13px;
-          overflow-wrap: anywhere;
         }
 
         .analysis-result {
@@ -2107,7 +2668,6 @@ export default function ResumePage() {
           border: 1px solid #e5e7eb;
           border-radius: 12px;
           background: #fff;
-          min-width: 0;
         }
 
         .analysis-title {
@@ -2115,10 +2675,6 @@ export default function ResumePage() {
           justify-content: space-between;
           align-items: center;
           gap: 15px;
-        }
-
-        .analysis-title strong {
-          font-size: 16px;
         }
 
         .analysis-title p {
@@ -2141,7 +2697,6 @@ export default function ResumePage() {
         }
 
         .score-box span {
-          display: block;
           font-size: 10px;
           color: #666;
         }
@@ -2158,13 +2713,11 @@ export default function ResumePage() {
           border-radius: 9px;
           background: #f5f5f5;
           text-align: center;
-          min-width: 0;
         }
 
         .analysis-stats strong {
           display: block;
           font-size: 18px;
-          overflow-wrap: anywhere;
         }
 
         .analysis-stats span {
@@ -2191,7 +2744,6 @@ export default function ResumePage() {
           color: #555;
           font-size: 12px;
           line-height: 1.5;
-          overflow-wrap: anywhere;
         }
 
         .placement-box {
@@ -2205,12 +2757,9 @@ export default function ResumePage() {
         .placement-box p {
           margin: 6px 0 0;
           font-size: 12px;
-          line-height: 1.5;
         }
 
         .repeat-card {
-          width: 100%;
-          min-width: 0;
           padding: 18px;
           border: 1px solid #e7e7e7;
           border-radius: 12px;
@@ -2226,12 +2775,15 @@ export default function ResumePage() {
 
         .template-grid {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns:
+            repeat(
+              3,
+              minmax(0, 1fr)
+            );
           gap: 12px;
         }
 
         .template {
-          min-width: 0;
           border: 2px solid #eee;
           background: white;
           padding: 10px;
@@ -2292,25 +2844,36 @@ export default function ResumePage() {
         .ats {
           color: #278c4b;
           font-weight: 700;
-          white-space: nowrap;
         }
 
+        /*
+         * IMPORTANT:
+         * This is the ONLY area captured by html2canvas.
+         *
+         * min-height is intentionally NOT fixed.
+         * This prevents an empty second PDF page.
+         */
         .resume-paper {
           width: 100%;
           max-width: 794px;
-          min-height: 1123px;
+          min-height: 0;
           margin: auto;
           padding: 58px;
-          box-sizing: border-box;
           background: white;
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+          box-shadow:
+            0 12px 40px
+            rgba(
+              0,
+              0,
+              0,
+              0.12
+            );
           overflow-wrap: anywhere;
         }
 
         .resume-header {
           border-bottom: 2px solid #222;
           padding-bottom: 18px;
-          min-width: 0;
         }
 
         .resume-header h1 {
@@ -2324,19 +2887,16 @@ export default function ResumePage() {
           color: #555;
           font-weight: 500;
           margin: 7px 0;
-          overflow-wrap: anywhere;
         }
 
         .resume-header p {
           color: #666;
           font-size: 12px;
           margin: 5px 0;
-          overflow-wrap: anywhere;
         }
 
         .resume-paper section {
           margin-top: 24px;
-          min-width: 0;
         }
 
         .resume-paper section h3 {
@@ -2350,7 +2910,6 @@ export default function ResumePage() {
           font-size: 12px;
           line-height: 1.6;
           color: #444;
-          overflow-wrap: anywhere;
         }
 
         .resume-skills {
@@ -2368,19 +2927,12 @@ export default function ResumePage() {
 
         .resume-item {
           margin-bottom: 17px;
-          min-width: 0;
         }
 
         .resume-item-top {
           display: flex;
           justify-content: space-between;
           gap: 20px;
-          min-width: 0;
-        }
-
-        .resume-item-top strong,
-        .resume-item-top span {
-          overflow-wrap: anywhere;
         }
 
         .resume-item-top span {
@@ -2393,11 +2945,22 @@ export default function ResumePage() {
           display: block;
           font-size: 12px;
           margin-top: 4px;
-          overflow-wrap: anywhere;
         }
 
         .project-link {
           color: #3769c8 !important;
+          margin-top: 6px;
+        }
+
+        .project-link a {
+          color: #3769c8;
+          text-decoration: underline;
+          cursor: pointer;
+          overflow-wrap: anywhere;
+        }
+
+        .project-link a:hover {
+          opacity: 0.7;
         }
 
         .minimal .resume-header {
@@ -2428,27 +2991,14 @@ export default function ResumePage() {
             min-height: auto;
             padding: 12px 14px;
             align-items: flex-start;
-            gap: 10px;
-          }
-
-          .brand {
-            font-size: 20px;
-          }
-
-          .page-title {
-            font-size: 11px;
           }
 
           .top-actions {
-            flex: 1 1 auto;
-            width: auto;
             gap: 6px;
-            justify-content: flex-end;
           }
 
-          .top-actions .ghost-btn,
-          .top-actions .download-btn,
-          .top-actions .upload-btn {
+          .top-actions button,
+          .upload-btn {
             padding: 8px 9px;
             font-size: 11px;
           }
@@ -2463,74 +3013,42 @@ export default function ResumePage() {
             margin-right: 14px;
           }
 
-          .section-tabs {
-            padding: 10px 12px;
-            gap: 4px;
-          }
-
-          .section-tabs button {
-            padding: 8px 10px;
-            font-size: 12px;
-          }
-
           .form-area {
             padding: 20px 14px;
           }
 
+          .linkedin-import-card {
+            padding: 13px;
+          }
+
+          .linkedin-import-btn {
+            width: 100%;
+          }
+
           .two-col {
             grid-template-columns: 1fr;
-            gap: 0;
-          }
-
-          .skill-input {
-            gap: 7px;
-          }
-
-          .skill-input button {
-            padding: 10px 12px;
-          }
-
-          .ai-card {
-            padding: 14px;
-          }
-
-          .analysis-title {
-            align-items: flex-start;
-          }
-
-          .analysis-result {
-            padding: 14px;
-          }
-
-          .template-grid {
-            grid-template-columns: 1fr 1fr;
           }
 
           .preview-panel {
             padding: 12px 8px 24px;
           }
 
-          .preview-toolbar {
-            padding: 0 4px;
-            margin-bottom: 10px;
-            font-size: 11px;
-          }
-
           .resume-paper {
             width: 100%;
             max-width: 100%;
-            min-height: auto;
             padding: 24px 18px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-          }
-
-          .resume-header {
-            padding-bottom: 14px;
+            box-shadow:
+              0 5px 20px
+              rgba(
+                0,
+                0,
+                0,
+                0.08
+              );
           }
 
           .resume-header h1 {
             font-size: 25px;
-            line-height: 1.15;
           }
 
           .resume-header h2 {
@@ -2545,86 +3063,162 @@ export default function ResumePage() {
           .resume-paper section {
             margin-top: 18px;
           }
-
-          .resume-item-top {
-            gap: 8px;
-          }
-
-          .resume-item-top span {
-            flex: 0 0 auto;
-          }
-        }
-
-        @media (max-width: 380px) {
-          .topbar {
-            flex-direction: column;
-            align-items: stretch;
-          }
-
-          .top-actions {
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-
-          .top-actions .ghost-btn,
-          .top-actions .download-btn,
-          .top-actions .upload-btn {
-            width: 100%;
-            min-width: 0;
-            padding: 9px 5px;
-            font-size: 10px;
-          }
-
-          .resume-paper {
-            padding: 20px 14px;
-          }
-
-          .resume-header h1 {
-            font-size: 23px;
-          }
         }
 
         @media print {
-          @page {
-            size: A4;
-            margin: 0;
+          body * {
+            visibility: hidden;
           }
 
-          :global(body) {
-            background: white !important;
-            overflow: visible !important;
-          }
-
-          .topbar,
-          .editor-panel,
-          .preview-toolbar {
-            display: none !important;
-          }
-
-          .workspace {
-            display: block !important;
-            min-height: auto !important;
-          }
-
-          .preview-panel {
-            padding: 0 !important;
-            background: white !important;
-            overflow: visible !important;
+          .resume-paper,
+          .resume-paper * {
+            visibility: visible;
           }
 
           .resume-paper {
-            width: 100% !important;
-            max-width: none !important;
-            min-height: auto !important;
-            margin: 0 !important;
-            padding: 45px !important;
-            box-shadow: none !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 794px;
+            max-width: 794px;
+            margin: 0;
+            box-shadow: none;
           }
         }
       `}</style>
     </main>
   );
+}
+
+function getElementRectRelativeToResume(
+  element: HTMLElement,
+  resumeElement: HTMLElement
+) {
+  const elementRect =
+    element.getBoundingClientRect();
+
+  const resumeRect =
+    resumeElement.getBoundingClientRect();
+
+  return {
+    x:
+      elementRect.left -
+      resumeRect.left +
+      resumeElement.scrollLeft,
+    y:
+      elementRect.top -
+      resumeRect.top +
+      resumeElement.scrollTop,
+    width: elementRect.width,
+    height: elementRect.height,
+  };
+}
+
+function addProjectPdfLinks(
+  pdf: jsPDF,
+  resumeElement: HTMLElement,
+  canvas: HTMLCanvasElement,
+  pageWidth: number,
+  pageHeightPx: number
+) {
+  addProjectPdfLinksForPage(
+    pdf,
+    resumeElement,
+    canvas,
+    pageWidth,
+    pageHeightPx,
+    0,
+    pageHeightPx
+  );
+}
+
+function addProjectPdfLinksForPage(
+  pdf: jsPDF,
+  resumeElement: HTMLElement,
+  canvas: HTMLCanvasElement,
+  pageWidth: number,
+  pageHeightPx: number,
+  sourceY: number,
+  currentHeight: number
+) {
+  const links =
+    Array.from(
+      resumeElement.querySelectorAll(
+        ".project-link a"
+      )
+    ) as HTMLAnchorElement[];
+
+  const resumeWidth =
+    resumeElement.scrollWidth || 794;
+
+  const pxToPdf =
+    pageWidth / resumeWidth;
+
+  for (const link of links) {
+    const rect =
+      getElementRectRelativeToResume(
+        link,
+        resumeElement
+      );
+
+    const linkTop =
+      rect.y;
+
+    const linkBottom =
+      rect.y + rect.height;
+
+    const pageTop =
+      sourceY;
+
+    const pageBottom =
+      sourceY + currentHeight;
+
+    if (
+      linkBottom <= pageTop ||
+      linkTop >= pageBottom
+    ) {
+      continue;
+    }
+
+    const visibleTop =
+      Math.max(linkTop, pageTop);
+
+    const visibleBottom =
+      Math.min(linkBottom, pageBottom);
+
+    const x =
+      rect.x * pxToPdf;
+
+    const y =
+      (visibleTop - pageTop) *
+      pxToPdf;
+
+    const width =
+      rect.width * pxToPdf;
+
+    const height =
+      Math.max(
+        (visibleBottom -
+          visibleTop) *
+          pxToPdf,
+        3
+      );
+
+    const url =
+      link.href;
+
+    if (!url) continue;
+
+    pdf.link(
+      x,
+      y,
+      width,
+      height,
+      {
+        url,
+      }
+    );
+  }
 }
 
 function AnalysisList({
@@ -2669,7 +3263,9 @@ function Input({
       <label>{label}</label>
 
       <input
-        placeholder={placeholder}
+        placeholder={
+          placeholder
+        }
         value={value}
         onChange={(e) =>
           onChange(

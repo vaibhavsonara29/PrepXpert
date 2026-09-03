@@ -11,6 +11,9 @@
     "@google/genai": "^2.17.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
+    "html2canvas": "^1.4.1",
+    "jose": "^6.2.10",
+    "jsonwebtoken": "^9.0.3",
     "jspdf": "^4.2.1",
     "mammoth": "^1.12.2",
     "mongodb": "^7.5.0",
@@ -21,6 +24,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "20.14.12",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",

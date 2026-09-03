@@ -1,7 +1,9 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { createToken } from "../../../../lib/auth";
 import { connectDB } from "../../../../lib/mongodb";
 import User from "../../../../models/User";
+
 export async function POST(request: Request) {
   try {
     await connectDB();
@@ -55,7 +57,13 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json(
+    const token = await createToken({
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+    });
+
+    const response = NextResponse.json(
       {
         success: true,
         message: "Login successful.",
@@ -67,6 +75,18 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
+
+    response.cookies.set({
+      name: "auth_token",
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error) {
     console.error("LOGIN ERROR:", error);
 

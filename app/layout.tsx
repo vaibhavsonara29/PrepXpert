@@ -122,6 +122,11 @@ export default function RootLayout({
                 <a href="/history" style={linkStyle}>
                   History
                 </a>
+
+                {/* Privacy Policy */}
+                <a href="/privacy" style={linkStyle}>
+                  Privacy Policy
+                </a>
               </div>
             </div>
 
@@ -137,30 +142,42 @@ export default function RootLayout({
                   lineHeight: 1.7,
                 }}
               >
-                <p style={{ margin: "0 0 14px" }}>
-                  <strong style={{ color: "white" }}>
-                    Mojidra Krunal Dipakbhai
-                  </strong>
+                <p
+                  style={{
+                    margin: "0 0 14px",
+                  }}
+                >
+                  <span
+                    style={{ color: "white" }}
+                  >
+                    Mojidra Krunal
+                  </span>
                   <br />
-                  Roll No. 78
+                  
                 </p>
 
-                <p style={{ margin: "0 0 14px" }}>
-                  <strong style={{ color: "white" }}>
-                    Sonara Vaibhav Bhanubhai
-                  </strong>
+                <p
+                  style={{
+                    margin: "0 0 14px",
+                  }}
+                >
+                  <span
+                    style={{ color: "white" }}
+                  >
+                    Sonara Vaibhav 
+                  </span>
                   <br />
-                  Roll No. 66
+                  
                 </p>
 
                 <p style={{ margin: 0 }}>
-                  <strong style={{ color: "white" }}>
-                    Sengar Sumit Shisupalsingh
-                  </strong>
-                  <br />
-                  Roll No. 59
-                  <br />
-                  Enroll No. 2302031800083
+                  <span
+                    style={{ color: "white" }}
+                  >
+                    Sengar Sumit 
+                  </span>
+                
+                  
                 </p>
               </div>
             </div>
@@ -181,6 +198,7 @@ export default function RootLayout({
                 LinkedIn.
               </p>
 
+              {/* Krunal LinkedIn */}
               <a
                 href="https://www.linkedin.com/in/mojidra-krunal-0854ab287/"
                 target="_blank"
@@ -192,8 +210,9 @@ export default function RootLayout({
 
               <br />
 
+              {/* Vaibhav LinkedIn */}
               <a
-                href="https://www.linkedin.com/in/vaibhaysonara/"
+                href="https://www.linkedin.com/in/vaibhavsonara?utm_source=share_via&utm_content=profile&utm_medium=member_android"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={linkStyle}
@@ -203,6 +222,7 @@ export default function RootLayout({
 
               <br />
 
+              {/* Sumit LinkedIn */}
               <a
                 href="https://www.linkedin.com/in/sumit-sengar-510454399?utm_source=share_via&utm_content=profile&utm_medium=member_android"
                 target="_blank"
@@ -226,8 +246,22 @@ export default function RootLayout({
               fontSize: "13px",
             }}
           >
-            © 2026 PrepXpert. Smart Placement Preparation
-            Portal.
+            <div>
+              © 2026 PrepXpert. Smart Placement
+              Preparation Portal.
+            </div>
+
+            <div style={{ marginTop: "10px" }}>
+              <a
+                href="/privacy"
+                style={{
+                  ...linkStyle,
+                  fontSize: "13px",
+                }}
+              >
+                Privacy Policy
+              </a>
+            </div>
           </div>
         </footer>
       </body>
@@ -239,4 +273,5 @@ const linkStyle: CSSProperties = {
   color: "#cbd5e1",
   textDecoration: "none",
   fontSize: "14px",
+  transition: "color 0.2s ease",
 };
