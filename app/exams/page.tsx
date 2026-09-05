@@ -554,21 +554,21 @@ export default function ExamsPage() {
       : 0;
 
   return (
-    <main style={styles.page}>
-      <div style={styles.container}>
+    <main className="exams-page" style={styles.page}>
+      <div className="exams-container" style={styles.container}>
         {/* HEADER */}
 
-        <header style={styles.header}>
+        <header className="exams-header" style={styles.header}>
           <div>
             <div style={styles.badge}>
               SMART PLACEMENT PORTAL
             </div>
 
-            <h1 style={styles.title}>
+            <h1 className="exam-title" style={styles.title}>
               Competitive Exam Preparation
             </h1>
 
-            <p style={styles.subtitle}>
+            <p className="exam-subtitle" style={styles.subtitle}>
               Prepare for GATE, CAT and other
               competitive exams with topic-wise
               practice.
@@ -577,6 +577,7 @@ export default function ExamsPage() {
 
           <a
             href="/dashboard"
+            className="dashboard-button"
             style={styles.backButton}
           >
             ← Dashboard
@@ -585,7 +586,7 @@ export default function ExamsPage() {
 
         {/* EXAM SELECTOR */}
 
-        <section style={styles.examGrid}>
+        <section className="exam-grid" style={styles.examGrid}>
           {exams.map((item) => {
             const active =
               item.id === selectedExam;
@@ -593,6 +594,7 @@ export default function ExamsPage() {
             return (
               <button
                 key={item.id}
+                className="exam-card"
                 onClick={() =>
                   selectExam(item.id)
                 }
@@ -636,28 +638,27 @@ export default function ExamsPage() {
 
         {/* MAIN PREPARATION CARD */}
 
-        <section style={styles.contentCard}>
-          <div style={styles.contentHeader}>
+        <section className="content-card" style={styles.contentCard}>
+          <div className="content-header" style={styles.contentHeader}>
             <div>
               <span style={styles.sectionLabel}>
                 SELECTED EXAM
               </span>
 
-              <h2 style={styles.contentTitle}>
+              <h2 className="content-title" style={styles.contentTitle}>
                 {exam.name} Preparation
               </h2>
 
               <p
-                style={
-                  styles.contentDescription
-                }
+                className="content-description"
+                style={styles.contentDescription}
               >
                 {exam.description}
               </p>
             </div>
 
-            <div style={styles.progressBox}>
-              <strong style={styles.progressNumber}>
+            <div className="progress-box" style={styles.progressBox}>
+              <strong className="progress-number" style={styles.progressNumber}>
                 {progress}%
               </strong>
 
@@ -665,7 +666,7 @@ export default function ExamsPage() {
                 Preparation Progress
               </span>
 
-              <div style={styles.progressTrack}>
+              <div className="progress-track" style={styles.progressTrack}>
                 <div
                   style={{
                     ...styles.progressFill,
@@ -680,12 +681,13 @@ export default function ExamsPage() {
 
           {!started ? (
             <>
-              <h3 style={styles.topicHeading}>
+              <h3 className="topic-heading" style={styles.topicHeading}>
                 Choose a Topic
               </h3>
 
-              <div style={styles.topicSelector}>
+              <div className="topic-selector" style={styles.topicSelector}>
                 <button
+                  className="topic-button"
                   onClick={() =>
                     selectTopic("All Topics")
                   }
@@ -710,6 +712,7 @@ export default function ExamsPage() {
                   (topic) => (
                     <button
                       key={topic}
+                      className="topic-button"
                       onClick={() =>
                         selectTopic(topic)
                       }
@@ -733,7 +736,7 @@ export default function ExamsPage() {
                 )}
               </div>
 
-              <div style={styles.practiceInfo}>
+              <div className="practice-info" style={styles.practiceInfo}>
                 <div>
                   <strong>
                     {availableQuestions.length}
@@ -771,6 +774,7 @@ export default function ExamsPage() {
                   availableQuestions.length ===
                   0
                 }
+                className="primary-button"
                 style={{
                   ...styles.primaryButton,
                   opacity:
@@ -785,6 +789,7 @@ export default function ExamsPage() {
 
               <button
                 onClick={resetProgress}
+                className="secondary-button"
                 style={styles.secondaryButton}
               >
                 Reset Progress
@@ -793,7 +798,7 @@ export default function ExamsPage() {
           ) : finished ? (
             /* RESULT */
 
-            <div style={styles.resultArea}>
+            <div className="result-area" style={styles.resultArea}>
               <div style={styles.resultIcon}>
                 {percentage >= 80
                   ? "🏆"
@@ -802,7 +807,7 @@ export default function ExamsPage() {
                   : "📚"}
               </div>
 
-              <h2 style={styles.resultTitle}>
+              <h2 className="result-title" style={styles.resultTitle}>
                 Practice Completed!
               </h2>
 
@@ -815,7 +820,7 @@ export default function ExamsPage() {
                 {selectedTopic}
               </p>
 
-              <div style={styles.resultBox}>
+              <div className="result-box" style={styles.resultBox}>
                 <div>
                   <span>Score</span>
                   <strong>
@@ -844,12 +849,11 @@ export default function ExamsPage() {
                   : "Keep practicing! Focus on the weak topics and build your fundamentals. 📖"}
               </div>
 
-              <div style={styles.resultActions}>
+              <div className="result-actions" style={styles.resultActions}>
                 <button
                   onClick={restartPractice}
-                  style={
-                    styles.primaryButton
-                  }
+                  className="primary-button"
+                  style={styles.primaryButton}
                 >
                   🔄 Retake Practice
                 </button>
@@ -862,9 +866,8 @@ export default function ExamsPage() {
                     setScore(0);
                     setSelectedAnswer("");
                   }}
-                  style={
-                    styles.secondaryButton
-                  }
+                  className="secondary-button"
+                  style={styles.secondaryButton}
                 >
                   ← Choose Topic
                 </button>
@@ -948,9 +951,8 @@ export default function ExamsPage() {
               </div>
 
               <h2
-                style={
-                  styles.questionText
-                }
+                className="question-text"
+                style={styles.questionText}
               >
                 {
                   availableQuestions[
@@ -960,9 +962,8 @@ export default function ExamsPage() {
               </h2>
 
               <div
-                style={
-                  styles.optionsContainer
-                }
+                className="options-container"
+                style={styles.optionsContainer}
               >
                 {availableQuestions[
                   current
@@ -975,6 +976,7 @@ export default function ExamsPage() {
                     return (
                       <button
                         key={option}
+                        className="option"
                         onClick={() =>
                           setSelectedAnswer(
                             option
@@ -1014,6 +1016,7 @@ export default function ExamsPage() {
               <button
                 onClick={handleNext}
                 disabled={!selectedAnswer}
+                className="primary-button"
                 style={{
                   ...styles.primaryButton,
                   opacity:
@@ -1034,7 +1037,7 @@ export default function ExamsPage() {
 
         {/* INFO CARDS */}
 
-        <section style={styles.infoGrid}>
+        <section className="info-grid" style={styles.infoGrid}>
           <InfoCard
             icon="📚"
             title="Topic-wise Preparation"
@@ -1060,6 +1063,262 @@ export default function ExamsPage() {
           />
         </section>
       </div>
+
+      <style jsx>{`
+        * {
+          box-sizing: border-box;
+        }
+
+        .exams-page {
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          overflow-x: hidden;
+        }
+
+        .exams-container {
+          width: 100%;
+          max-width: 1200px;
+          min-width: 0;
+          margin: 0 auto;
+        }
+
+        @media (max-width: 700px) {
+          .exams-page {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            padding: 18px 12px 40px !important;
+            overflow-x: hidden !important;
+          }
+
+          .exams-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+          }
+
+          .exams-header {
+            width: 100% !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 16px !important;
+            margin-bottom: 22px !important;
+          }
+
+          .exam-title {
+            font-size: 30px !important;
+            line-height: 1.12 !important;
+            letter-spacing: -0.5px !important;
+          }
+
+          .exam-subtitle {
+            font-size: 14px !important;
+            line-height: 1.55 !important;
+            max-width: 100% !important;
+          }
+
+          .dashboard-button {
+            width: 100% !important;
+            display: block !important;
+            text-align: center !important;
+            padding: 12px 15px !important;
+          }
+
+          .exam-grid {
+            width: 100% !important;
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+            margin-bottom: 18px !important;
+          }
+
+          .exam-card {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 18px !important;
+            border-radius: 14px !important;
+            transform: none !important;
+          }
+
+          .exam-card p {
+            min-height: auto !important;
+            font-size: 13px !important;
+            line-height: 1.55 !important;
+          }
+
+          .content-card {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            padding: 18px !important;
+            border-radius: 15px !important;
+            overflow: hidden !important;
+          }
+
+          .content-header {
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 18px !important;
+          }
+
+          .content-header > div:first-child {
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          .content-title {
+            font-size: 25px !important;
+            line-height: 1.15 !important;
+          }
+
+          .content-description {
+            width: 100% !important;
+            font-size: 13px !important;
+            line-height: 1.55 !important;
+          }
+
+          .progress-box {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 14px !important;
+            text-align: center !important;
+          }
+
+          .progress-track {
+            width: 100% !important;
+          }
+
+          .topic-selector {
+            width: 100% !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+          }
+
+          .topic-button {
+            max-width: 100% !important;
+            padding: 9px 11px !important;
+            font-size: 12px !important;
+            line-height: 1.3 !important;
+            white-space: normal !important;
+          }
+
+          .practice-info {
+            width: 100% !important;
+            grid-template-columns: 1fr !important;
+            gap: 9px !important;
+            margin-top: 18px !important;
+            margin-bottom: 18px !important;
+          }
+
+          .practice-info > div {
+            width: 100% !important;
+            min-width: 0 !important;
+            background: #f8fafc;
+            padding: 15px !important;
+            border-radius: 12px;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+            overflow-wrap: anywhere !important;
+          }
+
+          .primary-button,
+          .secondary-button {
+            width: 100% !important;
+            min-height: 46px !important;
+          }
+
+          .quiz-top-bar {
+            width: 100% !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+          }
+
+          .question-text {
+            font-size: 20px !important;
+            line-height: 1.45 !important;
+            overflow-wrap: anywhere !important;
+          }
+
+          .options-container {
+            width: 100% !important;
+          }
+
+          .option {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 12px !important;
+            font-size: 13px !important;
+            line-height: 1.4 !important;
+          }
+
+          .result-area {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+
+          .result-title {
+            font-size: 25px !important;
+          }
+
+          .result-box {
+            width: 100% !important;
+            grid-template-columns: 1fr !important;
+          }
+
+          .result-actions {
+            width: 100% !important;
+          }
+
+          .info-grid {
+            width: 100% !important;
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+            margin-top: 16px !important;
+          }
+
+          .info-card {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 17px !important;
+          }
+
+          .info-text {
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+          }
+        }
+
+        @media (max-width: 390px) {
+          .exams-page {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+          }
+
+          .content-card {
+            padding: 15px !important;
+          }
+
+          .exam-card {
+            padding: 16px !important;
+          }
+
+          .exam-title {
+            font-size: 28px !important;
+          }
+
+          .topic-button {
+            font-size: 11px !important;
+            padding: 8px 9px !important;
+          }
+        }
+      `}</style>
+
     </main>
   );
 }
@@ -1074,16 +1333,16 @@ function InfoCard({
   text: string;
 }) {
   return (
-    <div style={styles.infoCard}>
+    <div className="info-card" style={styles.infoCard}>
       <div style={styles.infoIcon}>
         {icon}
       </div>
 
-      <h3 style={styles.infoTitle}>
+      <h3 className="info-title" style={styles.infoTitle}>
         {title}
       </h3>
 
-      <p style={styles.infoText}>
+      <p className="info-text" style={styles.infoText}>
         {text}
       </p>
     </div>

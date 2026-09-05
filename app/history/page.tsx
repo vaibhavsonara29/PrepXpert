@@ -43,62 +43,43 @@ export default function HistoryPage() {
       const items: HistoryItem[] = [];
 
       // Aptitude
-      const aptitudeRaw =
-        localStorage.getItem("aptitudeResult");
+      const aptitudeRaw = localStorage.getItem("aptitudeResult");
 
       if (aptitudeRaw) {
         try {
-          const aptitude: AptitudeResult =
-            JSON.parse(aptitudeRaw);
+          const aptitude: AptitudeResult = JSON.parse(aptitudeRaw);
 
           items.push({
             module: "Aptitude Test",
-            score: Number(
-              aptitude.percentage || 0
-            ),
-            date:
-              aptitude.date ||
-              new Date().toISOString(),
+            score: Number(aptitude.percentage || 0),
+            date: aptitude.date || new Date().toISOString(),
             icon: "🧠",
           });
         } catch {
-          console.log(
-            "Invalid aptitude history"
-          );
+          console.log("Invalid aptitude history");
         }
       }
 
       // Coding
-      const codingRaw =
-        localStorage.getItem("codingResult");
+      const codingRaw = localStorage.getItem("codingResult");
 
       if (codingRaw) {
         try {
-          const coding: CodingResult =
-            JSON.parse(codingRaw);
+          const coding: CodingResult = JSON.parse(codingRaw);
 
           items.push({
             module: "Coding Practice",
-            score: Number(
-              coding.percentage || 0
-            ),
-            date:
-              coding.date ||
-              new Date().toISOString(),
+            score: Number(coding.percentage || 0),
+            date: coding.date || new Date().toISOString(),
             icon: "💻",
           });
         } catch {
-          console.log(
-            "Invalid coding history"
-          );
+          console.log("Invalid coding history");
         }
       }
 
       // Interview
-      const interviewRaw =
-        localStorage.getItem(
-          "interviewResult"
-        );
+      const interviewRaw = localStorage.getItem("interviewResult");
 
       if (interviewRaw) {
         try {
@@ -106,33 +87,24 @@ export default function HistoryPage() {
             JSON.parse(interviewRaw);
 
           items.push({
-            module:
-              "Interview Preparation",
-            score: Number(
-              interview.percentage || 0
-            ),
-            date:
-              interview.date ||
-              new Date().toISOString(),
+            module: "Interview Preparation",
+            score: Number(interview.percentage || 0),
+            date: interview.date || new Date().toISOString(),
             icon: "🎤",
           });
         } catch {
-          console.log(
-            "Invalid interview history"
-          );
+          console.log("Invalid interview history");
         }
       }
 
       // Resume
-      const resumeRaw =
-        localStorage.getItem("resumeData");
+      const resumeRaw = localStorage.getItem("resumeData");
 
       if (resumeRaw) {
         items.push({
           module: "Resume Builder",
           score: 100,
-          date:
-            new Date().toISOString(),
+          date: new Date().toISOString(),
           icon: "📄",
         });
       }
@@ -146,11 +118,7 @@ export default function HistoryPage() {
 
       setHistory(items);
     } catch (error) {
-      console.error(
-        "HISTORY LOAD ERROR:",
-        error
-      );
-
+      console.error("HISTORY LOAD ERROR:", error);
       setHistory([]);
     } finally {
       setLoading(false);
@@ -161,69 +129,45 @@ export default function HistoryPage() {
     if (!history.length) return 0;
 
     const total = history.reduce(
-      (sum, item) =>
-        sum + item.score,
+      (sum, item) => sum + item.score,
       0
     );
 
-    return Math.round(
-      total / history.length
-    );
+    return Math.round(total / history.length);
   }, [history]);
 
   const getStatus = (score: number) => {
     if (score >= 80) return "Excellent";
     if (score >= 60) return "Good";
-    if (score >= 40)
-      return "Needs Improvement";
+    if (score >= 40) return "Needs Improvement";
 
     return "Start Practicing";
   };
 
   const formatDate = (date: string) => {
     try {
-      return new Date(
-        date
-      ).toLocaleDateString(
-        "en-IN",
-        {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }
-      );
+      return new Date(date).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
     } catch {
       return "Unknown date";
     }
   };
 
   const clearHistory = () => {
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to clear your practice history?"
-      );
+    const confirmed = window.confirm(
+      "Are you sure you want to clear your practice history?"
+    );
 
     if (!confirmed) return;
 
-    localStorage.removeItem(
-      "aptitudeResult"
-    );
-
-    localStorage.removeItem(
-      "codingResult"
-    );
-
-    localStorage.removeItem(
-      "interviewResult"
-    );
-
-    localStorage.removeItem(
-      "resumeData"
-    );
-
-    localStorage.removeItem(
-      "codingCompleted"
-    );
+    localStorage.removeItem("aptitudeResult");
+    localStorage.removeItem("codingResult");
+    localStorage.removeItem("interviewResult");
+    localStorage.removeItem("resumeData");
+    localStorage.removeItem("codingCompleted");
 
     setHistory([]);
   };
@@ -234,13 +178,10 @@ export default function HistoryPage() {
         <div style={styles.loadingCard}>
           <div style={styles.loader}></div>
 
-          <h2>
-            Loading Practice History...
-          </h2>
+          <h2>Loading Practice History...</h2>
 
           <p>
-            Please wait while we load your
-            progress.
+            Please wait while we load your progress.
           </p>
         </div>
       </main>
@@ -248,12 +189,12 @@ export default function HistoryPage() {
   }
 
   return (
-    <main style={styles.page}>
-      <div style={styles.container}>
+    <main className="history-page" style={styles.page}>
+      <div className="history-container" style={styles.container}>
 
         {/* Header */}
-        <header style={styles.header}>
-          <div>
+        <header className="history-header" style={styles.header}>
+          <div className="history-heading">
             <p style={styles.eyebrow}>
               SMART PLACEMENT PORTAL
             </p>
@@ -263,13 +204,15 @@ export default function HistoryPage() {
             </h1>
 
             <p style={styles.subtitle}>
-              Review your placement
-              preparation activity and
-              progress.
+              Review your placement preparation activity
+              and progress.
             </p>
           </div>
 
-          <div style={styles.headerActions}>
+          <div
+            className="history-header-actions"
+            style={styles.headerActions}
+          >
             <button
               onClick={loadHistory}
               style={styles.refreshButton}
@@ -289,9 +232,11 @@ export default function HistoryPage() {
         </header>
 
         {/* Summary */}
-        <section style={styles.summaryGrid}>
-
-          <div style={styles.summaryCard}>
+        <section
+          className="history-summary-grid"
+          style={styles.summaryGrid}
+        >
+          <div className="summary-card" style={styles.summaryCard}>
             <span style={styles.summaryLabel}>
               Activities
             </span>
@@ -305,7 +250,7 @@ export default function HistoryPage() {
             </span>
           </div>
 
-          <div style={styles.summaryCard}>
+          <div className="summary-card" style={styles.summaryCard}>
             <span style={styles.summaryLabel}>
               Overall Progress
             </span>
@@ -319,7 +264,7 @@ export default function HistoryPage() {
             </span>
           </div>
 
-          <div style={styles.summaryCard}>
+          <div className="summary-card" style={styles.summaryCard}>
             <span style={styles.summaryLabel}>
               Modules
             </span>
@@ -332,12 +277,10 @@ export default function HistoryPage() {
               Placement preparation areas
             </span>
           </div>
-
         </section>
 
         {/* History */}
         <section style={styles.section}>
-
           <div style={styles.sectionHeader}>
             <div>
               <h2 style={styles.sectionTitle}>
@@ -345,15 +288,13 @@ export default function HistoryPage() {
               </h2>
 
               <p style={styles.sectionText}>
-                Your latest saved preparation
-                results.
+                Your latest saved preparation results.
               </p>
             </div>
           </div>
 
           {history.length === 0 ? (
-            <div style={styles.emptyCard}>
-
+            <div className="empty-card" style={styles.emptyCard}>
               <div style={styles.emptyIcon}>
                 📊
               </div>
@@ -363,115 +304,81 @@ export default function HistoryPage() {
               </h2>
 
               <p>
-                Complete an aptitude test,
-                coding practice or interview
-                activity to see your progress
+                Complete an aptitude test, coding practice
+                or interview activity to see your progress
                 here.
               </p>
-
             </div>
           ) : (
             <div style={styles.historyList}>
-
-              {history.map(
-                (item, index) => (
+              {history.map((item, index) => (
+                <div
+                  key={`${item.module}-${item.date}-${index}`}
+                  className="history-card"
+                  style={styles.historyCard}
+                >
                   <div
-                    key={`${item.module}-${item.date}-${index}`}
-                    style={styles.historyCard}
+                    className="history-left"
+                    style={styles.historyLeft}
                   >
-
-                    <div
-                      style={styles.historyLeft}
-                    >
-
-                      <div
-                        style={styles.moduleIcon}
-                      >
-                        {item.icon}
-                      </div>
-
-                      <div>
-                        <h3
-                          style={
-                            styles.moduleTitle
-                          }
-                        >
-                          {item.module}
-                        </h3>
-
-                        <p
-                          style={
-                            styles.dateText
-                          }
-                        >
-                          {formatDate(
-                            item.date
-                          )}
-                        </p>
-                      </div>
-
+                    <div style={styles.moduleIcon}>
+                      {item.icon}
                     </div>
 
-                    <div
-                      style={
-                        styles.historyRight
-                      }
-                    >
+                    <div className="module-info">
+                      <h3 style={styles.moduleTitle}>
+                        {item.module}
+                      </h3>
 
-                      <strong
-                        style={
-                          styles.score
-                        }
-                      >
-                        {item.score}%
-                      </strong>
-
-                      <span
-                        style={{
-                          ...styles.status,
-                          background:
-                            item.score >=
-                            80
-                              ? "#dcfce7"
-                              : item.score >=
-                                60
-                              ? "#dbeafe"
-                              : item.score >=
-                                40
-                              ? "#fef3c7"
-                              : "#f3f4f6",
-                          color:
-                            item.score >=
-                            80
-                              ? "#166534"
-                              : item.score >=
-                                60
-                              ? "#1d4ed8"
-                              : item.score >=
-                                40
-                              ? "#92400e"
-                              : "#4b5563",
-                        }}
-                      >
-                        {getStatus(
-                          item.score
-                        )}
-                      </span>
-
+                      <p style={styles.dateText}>
+                        {formatDate(item.date)}
+                      </p>
                     </div>
-
                   </div>
-                )
-              )}
 
+                  <div
+                    className="history-right"
+                    style={styles.historyRight}
+                  >
+                    <strong style={styles.score}>
+                      {item.score}%
+                    </strong>
+
+                    <span
+                      style={{
+                        ...styles.status,
+                        background:
+                          item.score >= 80
+                            ? "#dcfce7"
+                            : item.score >= 60
+                            ? "#dbeafe"
+                            : item.score >= 40
+                            ? "#fef3c7"
+                            : "#f3f4f6",
+                        color:
+                          item.score >= 80
+                            ? "#166534"
+                            : item.score >= 60
+                            ? "#1d4ed8"
+                            : item.score >= 40
+                            ? "#92400e"
+                            : "#4b5563",
+                      }}
+                    >
+                      {getStatus(item.score)}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-
         </section>
 
         {/* Progress note */}
-        <section style={styles.noteCard}>
-
+        <section
+          className="history-note"
+          style={styles.noteCard}
+        >
           <div style={styles.noteIcon}>
             💡
           </div>
@@ -482,31 +389,172 @@ export default function HistoryPage() {
             </h3>
 
             <p style={styles.noteText}>
-              Your history is stored locally
-              on this device. Complete more
-              preparation activities to build
-              your progress record.
+              Your history is stored locally on this
+              device. Complete more preparation activities
+              to build your progress record.
             </p>
           </div>
-
         </section>
-
       </div>
 
       <style jsx>{`
-
         * {
           box-sizing: border-box;
         }
 
-        @media (max-width: 700px) {
+        .history-page {
+          width: 100%;
+          overflow-x: hidden;
+        }
 
+        @media (max-width: 700px) {
           .history-page {
             padding: 20px 12px !important;
           }
 
+          .history-container {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+
+          .history-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 18px !important;
+            margin-bottom: 24px !important;
+          }
+
+          .history-heading {
+            width: 100%;
+          }
+
+          .history-header-actions {
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px !important;
+          }
+
+          .history-header-actions button {
+            width: 100% !important;
+            min-height: 44px;
+            padding: 10px 8px !important;
+            font-size: 13px;
+          }
+
+          .history-summary-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+            margin-bottom: 28px !important;
+          }
+
+          .summary-card {
+            padding: 17px !important;
+            border-radius: 13px !important;
+          }
+
+          .summary-value {
+            font-size: 26px !important;
+          }
+
+          .history-card {
+            width: 100% !important;
+            padding: 15px !important;
+            gap: 14px !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            border-radius: 13px !important;
+          }
+
+          .history-left {
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          .module-info {
+            min-width: 0;
+            overflow: hidden;
+          }
+
+          .module-title {
+            font-size: 14px !important;
+            line-height: 1.35 !important;
+            word-break: break-word;
+          }
+
+          .history-right {
+            width: 100% !important;
+            justify-content: space-between !important;
+            padding-top: 2px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 12px;
+          }
+
+          .score {
+            font-size: 19px !important;
+          }
+
+          .status {
+            font-size: 10px !important;
+            padding: 6px 9px !important;
+          }
+
+          .empty-card {
+            padding: 38px 18px !important;
+          }
+
+          .empty-card p {
+            font-size: 13px;
+            line-height: 1.5;
+          }
+
+          .history-note {
+            padding: 17px !important;
+            gap: 11px !important;
+            margin-bottom: 10px;
+          }
+
+          .history-note p {
+            font-size: 12px !important;
+            line-height: 1.55 !important;
+          }
+
+          h1 {
+            font-size: 27px !important;
+            line-height: 1.15 !important;
+          }
+
+          .history-heading p {
+            max-width: 100%;
+          }
+
+          .section-title {
+            font-size: 19px !important;
+          }
         }
 
+        @media (max-width: 390px) {
+          .history-page {
+            padding: 16px 10px !important;
+          }
+
+          .history-header-actions {
+            grid-template-columns: 1fr;
+          }
+
+          .history-card {
+            padding: 14px !important;
+          }
+
+          .module-icon {
+            width: 42px !important;
+            height: 42px !important;
+          }
+
+          .history-right {
+            gap: 8px !important;
+          }
+        }
       `}</style>
     </main>
   );
@@ -517,8 +565,7 @@ const styles = {
     minHeight: "100vh",
     background: "#f5f7fb",
     padding: "35px 20px",
-    boxSizing:
-      "border-box" as const,
+    boxSizing: "border-box" as const,
   },
 
   container: {
@@ -529,13 +576,11 @@ const styles = {
 
   header: {
     display: "flex",
-    justifyContent:
-      "space-between",
+    justifyContent: "space-between",
     alignItems: "flex-start",
     gap: "20px",
     marginBottom: "30px",
-    flexWrap:
-      "wrap" as const,
+    flexWrap: "wrap" as const,
   },
 
   eyebrow: {
@@ -562,14 +607,12 @@ const styles = {
   headerActions: {
     display: "flex",
     gap: "10px",
-    flexWrap:
-      "wrap" as const,
+    flexWrap: "wrap" as const,
   },
 
   refreshButton: {
     padding: "10px 17px",
-    border:
-      "1px solid #d1d5db",
+    border: "1px solid #d1d5db",
     borderRadius: "9px",
     background: "white",
     color: "#111827",
@@ -589,16 +632,14 @@ const styles = {
 
   summaryGrid: {
     display: "grid",
-    gridTemplateColumns:
-      "repeat(3, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
     gap: "18px",
     marginBottom: "35px",
   },
 
   summaryCard: {
     background: "white",
-    border:
-      "1px solid #e5e7eb",
+    border: "1px solid #e5e7eb",
     borderRadius: "15px",
     padding: "22px",
   },
@@ -647,24 +688,20 @@ const styles = {
 
   historyList: {
     display: "flex",
-    flexDirection:
-      "column" as const,
+    flexDirection: "column" as const,
     gap: "12px",
   },
 
   historyCard: {
     background: "white",
-    border:
-      "1px solid #e5e7eb",
+    border: "1px solid #e5e7eb",
     borderRadius: "14px",
     padding: "18px 20px",
     display: "flex",
-    justifyContent:
-      "space-between",
+    justifyContent: "space-between",
     alignItems: "center",
     gap: "15px",
-    flexWrap:
-      "wrap" as const,
+    flexWrap: "wrap" as const,
   },
 
   historyLeft: {
@@ -714,18 +751,15 @@ const styles = {
     borderRadius: "20px",
     fontSize: "11px",
     fontWeight: 700,
-    whiteSpace:
-      "nowrap" as const,
+    whiteSpace: "nowrap" as const,
   },
 
   emptyCard: {
     background: "white",
-    border:
-      "1px solid #e5e7eb",
+    border: "1px solid #e5e7eb",
     borderRadius: "15px",
     padding: "50px 25px",
-    textAlign:
-      "center" as const,
+    textAlign: "center" as const,
   },
 
   emptyIcon: {
@@ -766,21 +800,17 @@ const styles = {
     padding: "35px",
     background: "white",
     borderRadius: "15px",
-    textAlign:
-      "center" as const,
-    boxShadow:
-      "0 4px 15px rgba(0,0,0,0.06)",
+    textAlign: "center" as const,
+    boxShadow: "0 4px 15px rgba(0,0,0,0.06)",
   },
 
   loader: {
     width: "38px",
     height: "38px",
     margin: "0 auto 15px",
-    border:
-      "4px solid #e5e7eb",
+    border: "4px solid #e5e7eb",
     borderTopColor: "#111827",
     borderRadius: "50%",
-    animation:
-      "spin 0.8s linear infinite",
+    animation: "spin 0.8s linear infinite",
   },
 };

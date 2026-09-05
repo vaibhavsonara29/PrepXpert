@@ -63,6 +63,7 @@ export default function ResumePage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [template, setTemplate] = useState("modern");
   const [saved, setSaved] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const [linkedinImporting, setLinkedinImporting] =
     useState(false);
@@ -103,11 +104,7 @@ export default function ResumePage() {
     summary: "",
   });
 
-  const [skills, setSkills] = useState<string[]>([
-    "JavaScript",
-    "React",
-    "Node.js",
-  ]);
+  const [skills, setSkills] = useState<string[]>([]);
 
   const [skillInput, setSkillInput] =
     useState("");
@@ -613,6 +610,11 @@ export default function ResumePage() {
    */
 
   async function downloadPDF() {
+    if (!showPreview) {
+      setShowPreview(true);
+      return;
+    }
+
     const resumeElement =
       document.querySelector(
         ".resume-paper"
@@ -948,9 +950,24 @@ export default function ResumePage() {
 
           <button
             className="ghost-btn"
-            onClick={
-              saveDraft
-            }
+            onClick={() => {
+              setShowPreview(true);
+              setTimeout(() => {
+                document
+                  .getElementById("resume-preview-panel")
+                  ?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+              }, 100);
+            }}
+          >
+            Preview Resume
+          </button>
+
+          <button
+            className="ghost-btn"
+            onClick={saveDraft}
           >
             {saved
               ? "✓ Saved"
@@ -959,11 +976,12 @@ export default function ResumePage() {
 
           <button
             className="download-btn"
-            onClick={
-              downloadPDF
-            }
-            disabled={
-              downloading
+            onClick={downloadPDF}
+            disabled={downloading || !showPreview}
+            title={
+              !showPreview
+                ? "Preview your resume first"
+                : "Download resume as PDF"
             }
           >
             {downloading
@@ -1215,7 +1233,7 @@ export default function ResumePage() {
 
                 <Input
                   label="Full Name"
-                  placeholder="e.g. Vaibhav Christian"
+                  placeholder="e.g. Your Name"
                   value={
                     profile.name
                   }
@@ -1964,13 +1982,44 @@ export default function ResumePage() {
               </section>
             )}
           </div>
+
+          <div className="editor-bottom-actions">
+            <button
+              type="button"
+              className="preview-resume-btn"
+              onClick={() => {
+                setShowPreview(true);
+                setTimeout(() => {
+                  document
+                    .getElementById("resume-preview-panel")
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                }, 100);
+              }}
+            >
+              Preview Resume →
+            </button>
+          </div>
         </aside>
 
-        <section className="preview-panel">
+        {showPreview && (
+        <section id="resume-preview-panel" className="preview-panel">
           <div className="preview-toolbar">
-            <span>
-              Live Preview
-            </span>
+            <div className="preview-toolbar-left">
+              <button
+                type="button"
+                className="edit-resume-btn"
+                onClick={() => setShowPreview(false)}
+              >
+                ← Edit Resume
+              </button>
+
+              <span>
+                Resume Preview
+              </span>
+            </div>
 
             <span className="ats">
               ✓ ATS Friendly
@@ -2206,6 +2255,7 @@ export default function ResumePage() {
             )}
           </div>
         </section>
+        )}
       </div>
 
       <style jsx>{`
@@ -2822,6 +2872,49 @@ export default function ResumePage() {
           width: 70%;
         }
 
+        .editor-bottom-actions {
+          padding: 0 26px 28px;
+        }
+
+        .preview-resume-btn {
+          width: 100%;
+          border: 0;
+          background: #151515;
+          color: #fff;
+          padding: 13px 16px;
+          border-radius: 9px;
+          cursor: pointer;
+          font-weight: 700;
+          font-size: 14px;
+        }
+
+        .preview-resume-btn:hover {
+          background: #2a2a2a;
+        }
+
+        .preview-toolbar-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-width: 0;
+        }
+
+        .edit-resume-btn {
+          border: 1px solid #ddd;
+          background: #fff;
+          color: #222;
+          padding: 7px 10px;
+          border-radius: 7px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        .edit-resume-btn:hover {
+          background: #f5f5f5;
+        }
+
         .preview-panel {
           min-width: 0;
           width: 100%;
@@ -2990,17 +3083,26 @@ export default function ResumePage() {
           .topbar {
             min-height: auto;
             padding: 12px 14px;
-            align-items: flex-start;
+            align-items: stretch;
           }
 
           .top-actions {
-            gap: 6px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
           }
 
           .top-actions button,
           .upload-btn {
-            padding: 8px 9px;
+            width: 100%;
+            min-height: 42px;
+            padding: 9px 8px;
             font-size: 11px;
+          }
+
+          .upload-btn {
+            grid-column: 1 / -1;
           }
 
           .completion-card {
@@ -3017,6 +3119,14 @@ export default function ResumePage() {
             padding: 20px 14px;
           }
 
+          .editor-bottom-actions {
+            padding: 0 14px 22px;
+          }
+
+          .preview-resume-btn {
+            min-height: 46px;
+          }
+
           .linkedin-import-card {
             padding: 13px;
           }
@@ -3029,8 +3139,31 @@ export default function ResumePage() {
             grid-template-columns: 1fr;
           }
 
+          .skill-input {
+            width: 100%;
+          }
+
+          .repeat-card {
+            padding: 14px;
+          }
+
           .preview-panel {
             padding: 12px 8px 24px;
+          }
+
+          .preview-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .preview-toolbar-left {
+            width: 100%;
+            justify-content: space-between;
+            flex-wrap: wrap;
+          }
+
+          .edit-resume-btn {
+            min-height: 38px;
           }
 
           .resume-paper {

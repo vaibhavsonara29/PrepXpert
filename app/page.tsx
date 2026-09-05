@@ -243,29 +243,6 @@ export default function Home() {
           </div>
         </Reveal>
       </section>
-
-      <footer className="footer">
-        <div>
-          <div className="brand">
-            <span className="brand-mark">PX</span>
-            <span>
-              Prep<span>Xpert</span>
-            </span>
-          </div>
-
-          <p>Smart Placement Preparation Portal</p>
-        </div>
-
-        <div className="footer-links">
-          <a href="#features">Features</a>
-          <a href="#how">How it works</a>
-          <Link href="/auth/login">Dashboard</Link>
-        </div>
-
-        <div className="footer-note">
-          © 2026 PrepXpert · Built for students
-        </div>
-      </footer>
     </main>
   );
 }

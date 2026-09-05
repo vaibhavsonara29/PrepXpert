@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------
 
     const userEmail =
-      user.email?.toLowerCase();
+      user.email?.trim().toLowerCase();
 
     if (!userEmail) {
       return NextResponse.json(
@@ -192,12 +192,55 @@ export async function POST(req: NextRequest) {
     // 5. GET LATEST APTITUDE RESULT
     // -----------------------------------------
 
-    const latestResult =
-      await AptitudeResult.findOne({
-        userEmail,
-      }).sort({
-        createdAt: -1,
+    /*
+      IMPORTANT:
+
+      Try to find the aptitude result using:
+      1. userEmail (case-insensitive)
+      2. userId, if the aptitude result stores it
+
+      This makes the recommendation system work
+      even if the aptitude result was saved using
+      userId instead of userEmail.
+    */
+
+    const aptitudeConditions: Record<
+      string,
+      unknown
+    >[] = [];
+
+    if (userEmail) {
+      aptitudeConditions.push({
+        userEmail: new RegExp(
+          `^${userEmail.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          )}$`,
+          "i"
+        ),
       });
+    }
+
+    if (user.id) {
+      aptitudeConditions.push({
+        userId: user.id,
+      });
+    }
+
+    let latestResult = null;
+
+    if (aptitudeConditions.length > 0) {
+      latestResult =
+        await AptitudeResult.findOne({
+          $or: aptitudeConditions,
+        }).sort({
+          createdAt: -1,
+        });
+    }
+
+    // -----------------------------------------
+    // 6. IF NO RESULT FOUND
+    // -----------------------------------------
 
     if (!latestResult) {
       return NextResponse.json(
@@ -210,6 +253,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // -----------------------------------------
+    // 7. READ APTITUDE DATA SAFELY
+    // -----------------------------------------
+
     const aptitude = Math.min(
       100,
       Math.max(
@@ -221,13 +268,25 @@ export async function POST(req: NextRequest) {
     );
 
     const aptitudeScore =
-      Number(latestResult.score) || 0;
+      Number(
+        latestResult.score
+      ) || 0;
+
+    /*
+      Support both possible field names:
+      - total
+      - totalQuestions
+    */
 
     const aptitudeTotal =
-      Number(latestResult.total) || 0;
+      Number(
+        latestResult.total ??
+          latestResult.totalQuestions ??
+          0
+      );
 
     // -----------------------------------------
-    // 6. GET LINKEDIN PROFILE
+    // 8. GET LINKEDIN PROFILE
     // -----------------------------------------
 
     const linkedinProfile =
@@ -251,7 +310,7 @@ export async function POST(req: NextRequest) {
     );
 
     // -----------------------------------------
-    // 7. PREPARE RESUME CONTEXT
+    // 9. PREPARE RESUME CONTEXT
     // -----------------------------------------
 
     const resumeProfile =
@@ -361,7 +420,7 @@ export async function POST(req: NextRequest) {
         : [];
 
     // -----------------------------------------
-    // 8. GEMINI API KEY
+    // 10. GEMINI API KEY
     // -----------------------------------------
 
     const apiKey =
@@ -379,7 +438,7 @@ export async function POST(req: NextRequest) {
     }
 
     // -----------------------------------------
-    // 9. BUILD PERSONALIZED AI PROMPT
+    // 11. LINKEDIN CONTEXT
     // -----------------------------------------
 
     const linkedinContext =
@@ -403,6 +462,10 @@ Not connected
 
 Do not claim that the student has a LinkedIn profile connected.
 `;
+
+    // -----------------------------------------
+    // 12. RESUME CONTEXT
+    // -----------------------------------------
 
     const resumeContext = `
 Resume Builder data available:
@@ -452,6 +515,10 @@ ${
 }
 `;
 
+    // -----------------------------------------
+    // 13. BUILD AI PROMPT
+    // -----------------------------------------
+
     const prompt = `
 You are the AI Recommendation Engine of PrepXpert,
 a Smart Placement Preparation Portal for B.Tech CSE students.
@@ -480,32 +547,50 @@ Important data rules:
 
 1. The aptitude result is the ONLY verified performance score
    currently available from the database.
+
 2. Do NOT invent coding, interview, or resume scores.
+
 3. Do NOT say the student completed coding or interview tests
    unless such verified data is explicitly provided.
+
 4. LinkedIn data is profile context, not a performance score.
-5. Resume skills/projects/experience are profile context,
-   not performance scores.
+
+5. Resume skills, projects, experience and education are
+   profile context, not performance scores.
+
 6. If LinkedIn is connected, personalize career advice using
-   the available LinkedIn name/profile context.
+   the available LinkedIn profile context.
+
 7. If Resume Builder skills or projects are available,
    connect recommendations to those actual skills/projects.
+
 8. Never invent skills, projects, companies, education,
    job experience, or achievements.
-9. The student's current career goal can be inferred only when
-   a professional role is present in the saved Resume Builder
-   profile. Otherwise give broad B.Tech CSE placement advice.
-10. Keep language simple and student-friendly.
-11. Recommendations must be practical and actionable.
-12. Prioritize Aptitude according to:
+
+9. The student's current career goal can be inferred only
+   when a professional role is present in the saved Resume
+   Builder profile.
+
+10. Otherwise give broad B.Tech CSE placement advice.
+
+11. Keep language simple and student-friendly.
+
+12. Recommendations must be practical and actionable.
+
+13. Prioritize Aptitude according to:
     - Below 50 = High
     - 50 to 69 = Medium
     - 70 or above = Low
-13. Mention LinkedIn/Resume context naturally when useful.
-14. Do not expose access tokens or private credentials.
-15. Return ONLY valid JSON.
-16. Do not use markdown.
-17. Do not use code fences.
+
+14. Mention LinkedIn/Resume context naturally when useful.
+
+15. Do not expose access tokens or private credentials.
+
+16. Return ONLY valid JSON.
+
+17. Do not use markdown.
+
+18. Do not use code fences.
 
 Your response must contain:
 
@@ -517,17 +602,21 @@ Your response must contain:
 - career advice
 
 For weakAreas, use the verified aptitude percentage
-for the Aptitude item. Other areas may be discussed as
-recommendation areas, but do not assign invented scores.
+for the Aptitude item.
+
+Other areas may be discussed as recommendation areas,
+but do not assign invented scores.
 
 Return exactly this structure:
 
 {
   "overallAssessment": "short personalized assessment",
+
   "strengths": [
     "strength 1",
     "strength 2"
   ],
+
   "weakAreas": [
     {
       "area": "Aptitude",
@@ -536,6 +625,7 @@ Return exactly this structure:
       "reason": "short reason based on the verified aptitude result"
     }
   ],
+
   "recommendedActions": [
     {
       "title": "Practice Aptitude",
@@ -558,6 +648,7 @@ Return exactly this structure:
       "module": "resume"
     }
   ],
+
   "sevenDayPlan": [
     {
       "day": "Day 1",
@@ -588,12 +679,13 @@ Return exactly this structure:
       "task": "task"
     }
   ],
+
   "careerAdvice": "short personalized career advice"
 }
 `;
 
     // -----------------------------------------
-    // 10. CALL GEMINI
+    // 14. CALL GEMINI
     // -----------------------------------------
 
     const response = await fetch(
@@ -626,6 +718,8 @@ Return exactly this structure:
               "application/json",
           },
         }),
+
+        cache: "no-store",
       }
     );
 
@@ -633,7 +727,7 @@ Return exactly this structure:
       await response.json();
 
     // -----------------------------------------
-    // 11. GEMINI ERROR
+    // 15. GEMINI ERROR
     // -----------------------------------------
 
     if (!response.ok) {
@@ -657,7 +751,7 @@ Return exactly this structure:
     }
 
     // -----------------------------------------
-    // 12. GET AI RESPONSE
+    // 16. GET AI RESPONSE
     // -----------------------------------------
 
     const rawText =
@@ -676,7 +770,7 @@ Return exactly this structure:
     }
 
     // -----------------------------------------
-    // 13. PARSE JSON
+    // 17. PARSE JSON
     // -----------------------------------------
 
     let recommendation:
@@ -709,7 +803,7 @@ Return exactly this structure:
     }
 
     // -----------------------------------------
-    // 14. RETURN PERSONALIZED RESULT
+    // 18. RETURN RESULT
     // -----------------------------------------
 
     return NextResponse.json({

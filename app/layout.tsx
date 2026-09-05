@@ -22,7 +22,7 @@ export default function RootLayout({
 
         <footer
           style={{
-            background: "#111827",
+            background: "#111111",
             color: "white",
             marginTop: "60px",
             padding: "45px 20px 20px",
