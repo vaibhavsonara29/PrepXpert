@@ -3,10 +3,10 @@ import type { CSSProperties, ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PrepXpert — Smart Placement Preparation Portal",
+  title: "Smart Placement Preparation Portal",
   description:
-    "Prepare smarter, practise better and get placement-ready with PrepXpert.",
-  applicationName: "PrepXpert",
+    "Prepare smarter, practise better and get placement-ready with Smart Placement Preparation Portal",
+  applicationName: "Smart Placement Preparation Portal",
   manifest: "/manifest.webmanifest",
 };
 
@@ -46,7 +46,7 @@ export default function RootLayout({
                   fontSize: "24px",
                 }}
               >
-                PrepXpert
+                Smart Placement Preparation Portal
               </h2>
 
               <p
@@ -247,7 +247,7 @@ export default function RootLayout({
             }}
           >
             <div>
-              © 2026 PrepXpert. Smart Placement
+              © 2026 Smart Placement Preparation Portal. Smart Placement
               Preparation Portal.
             </div>
 

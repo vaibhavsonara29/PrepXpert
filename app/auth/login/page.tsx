@@ -65,7 +65,7 @@ export default function LoginPage() {
         <h1 style={headingStyle}>Sign In</h1>
 
         <p style={subheadingStyle}>
-          Sign in to continue to your PrepXpert dashboard.
+          Sign in to continue to your Smart Placement Preperation Portal dashboard.
         </p>
 
         <input

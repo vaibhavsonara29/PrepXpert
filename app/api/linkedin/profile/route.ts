@@ -5,7 +5,7 @@ import LinkedInProfile from "../../../../models/LinkedInProfile";
 
 export async function GET(request: NextRequest) {
   try {
-    // Check PrepXpert login session
+    // Check Smart Placement Preparation Portal login session
     const authToken =
       request.cookies.get("auth_token")?.value;
 

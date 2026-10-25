@@ -54,10 +54,10 @@ export default function Home() {
   return (
     <main>
       <nav className="nav">
-        <Link href="/" className="brand" aria-label="PrepXpert home">
-          <span className="brand-mark">PX</span>
+        <Link href="/" className="brand" aria-label="Smart Placement Preperation Portal home">
+          <span className="brand-mark">SP</span>
           <span>
-            Prep<span>Xpert</span>
+            Smart Placement<span>Preperation Portal</span>
           </span>
         </Link>
 
@@ -126,7 +126,7 @@ export default function Home() {
         <Reveal className="delay-2">
           <div className="dashboard-card">
             <div className="card-top">
-              <span>PrepXpert Dashboard</span>
+              <span>Smart Placement Preparation Portal Dashboard</span>
               <span className="streak">🔥 12 day streak</span>
             </div>
 
@@ -232,13 +232,13 @@ export default function Home() {
               <div className="eyebrow">Built for serious preparation</div>
               <h2>Ready to make your preparation measurable?</h2>
               <p>
-                Start with your profile and let PrepXpert organise the rest.
+                Start with your profile and let Smart Placement Preparation Portal organise the rest.
               </p>
             </div>
 
-            {/* Open PrepXpert → Sign In */}
+            {/* Open Smart Placement Preparation Portal → Sign In */}
             <Link href="/auth/login" className="button">
-              Open PrepXpert <span>→</span>
+              Open Smart Placement Preparation Portal <span>→</span>
             </Link>
           </div>
         </Reveal>

@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <p>
-          Welcome to <strong>PrepXpert</strong>, a Smart
+          Welcome to <strong>Smart Placement Preperation Portal</strong>, a Smart
           Placement Preparation Portal. This Privacy Policy
           explains how information may be collected and used
           when you use our website and services.
@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
         <h2>1. Information We Collect</h2>
 
         <p>
-          When you create an account or use PrepXpert, we may
+          When you create an account or use Smart Placement Preperation Portal, we may
           collect information such as:
         </p>
 
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
 
         <p>
           If you choose to connect your LinkedIn account with
-          PrepXpert, we may receive information that LinkedIn
+          Smart Placement Preparation Portal, we may receive information that LinkedIn
           makes available through the permissions you authorize,
           such as your basic profile information and email
           address.
@@ -73,14 +73,14 @@ export default function PrivacyPolicyPage() {
 
         <p>
           Connecting LinkedIn is optional. You can continue
-          using the main PrepXpert features without connecting
+          using the main Smart Placement Preparation Portal features without connecting
           your LinkedIn account.
         </p>
 
         <h2>3. How We Use Information</h2>
 
         <p>
-          Information collected by PrepXpert may be used to:
+          Information collected by Smart Placement Preperation Portal may be used to:
         </p>
 
         <ul>
@@ -102,7 +102,7 @@ export default function PrivacyPolicyPage() {
         <h2>5. Third-Party Services</h2>
 
         <p>
-          PrepXpert may use third-party services such as
+          Smart Placement Preparation Portal may use third-party services such as
           LinkedIn, MongoDB and AI services to provide certain
           application features. Information shared with these
           services is handled according to their respective
@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
         <h2>7. Children's Privacy</h2>
 
         <p>
-          PrepXpert is intended for students and general users
+          Smart Placement Preparation Portal is intended for students and general users
           preparing for academic and placement opportunities.
           We do not knowingly collect personal information from
           children in violation of applicable laws.
@@ -140,7 +140,7 @@ export default function PrivacyPolicyPage() {
 
         <p>
           For questions regarding this Privacy Policy or
-          PrepXpert, please contact the project team through
+          Smart Placement Preparation Portal, please contact the project team through
           the contact information provided on the website.
         </p>
 
@@ -158,7 +158,7 @@ export default function PrivacyPolicyPage() {
               fontSize: "14px",
             }}
           >
-            © 2026 PrepXpert. Smart Placement Preparation
+            © 2026 Smart Placement Preparation Portal. Smart Placement Preparation
             Portal.
           </p>
         </div>

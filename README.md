@@ -1,4 +1,4 @@
-# PrepXpert
+# Smart Placement Preparation Portal
 
 Smart Placement Preparation Portal.
 
@@ -17,7 +17,7 @@ Open `http://localhost:3000`.
 
 ## Included in this fresh foundation
 
-- PrepXpert-only branding
+- Smart Placement Preparation Portal-only branding
 - Yellow / black / white visual system
 - Responsive mobile-first layout
 - Smooth browser scrolling

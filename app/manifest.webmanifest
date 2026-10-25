@@ -1,7 +1,7 @@
 {
-  "name": "PrepXpert — Smart Placement Preparation Portal",
-  "short_name": "PrepXpert",
-  "description": "Prepare smarter, practise better and get placement-ready with PrepXpert.",
+  "name": "Smart Placement Preparation Portal — Smart Placement Preparation Portal",
+  "short_name": "Smart Placement Preparation Portal",
+  "description": "Prepare smarter, practise better and get placement-ready with Smart Placement Preperation Portal.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#111111",

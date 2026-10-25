@@ -127,7 +127,7 @@ Link: ${item.link || "Not provided"}
 `;
 
     const prompt = `
-You are an expert AI Resume Analyzer for a Smart Placement Preparation Portal called PrepXpert.
+You are an expert AI Resume Analyzer for a Smart Placement Preparation Portal called Smart Placement Preperation Portal.
 
 Analyze the following resume of a B.Tech Computer Science student.
 

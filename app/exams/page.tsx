@@ -417,7 +417,7 @@ export default function ExamsPage() {
     );
   }, [exam, selectedTopic]);
 
-  const progressKey = `prepxpert_exam_progress_${selectedExam}`;
+  const progressKey = `Smart Placement Preperation Portal_exam_progress_${selectedExam}`;
 
   const [progress, setProgress] = useState(0);
 
@@ -1059,7 +1059,7 @@ export default function ExamsPage() {
           <InfoCard
             icon="🚀"
             title="Placement Ready"
-            text="Use your exam performance with PrepXpert recommendations to improve weak areas."
+            text="Use your exam performance with Smart Placement Preperation Portal recommendations to improve weak areas."
           />
         </section>
       </div>

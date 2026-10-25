@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     }
 
     // -----------------------------------------
-    // 4. Check PrepXpert login
+    // 4. Check Smart Placement Preperation Portal login
     // -----------------------------------------
 
     const authToken =
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
       await verifyToken(authToken);
 
     console.log(
-      "PrepXpert user verified:",
+      "Smart Placement Preparation Portal user verified:",
       Boolean(user)
     );
 

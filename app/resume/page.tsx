@@ -57,7 +57,7 @@ type Analysis = {
   placementReadiness: string;
 };
 
-const STORAGE_KEY = "prepxpert-resume";
+const STORAGE_KEY = "Smart Placement Preperation Portal-resume";
 
 export default function ResumePage() {
   const [activeSection, setActiveSection] = useState("profile");
@@ -183,7 +183,7 @@ export default function ResumePage() {
     try {
       const savedUpload =
         localStorage.getItem(
-          "prepxpert-uploaded-resume"
+          "Smart Placement Preparation Portal-uploaded-resume"
         );
 
       if (savedUpload) {
@@ -546,7 +546,7 @@ export default function ResumePage() {
       );
 
       localStorage.setItem(
-        "prepxpert-uploaded-resume",
+        "Smart Placement Preparation Portal-uploaded-resume",
         JSON.stringify(uploaded)
       );
     } catch (error) {
@@ -1840,7 +1840,7 @@ export default function ResumePage() {
                     >
                       <Input
                         label="Project Name"
-                        placeholder="PrepXpert"
+                        placeholder="Smart Placement Preparation Portal"
                         value={
                           item.name
                         }

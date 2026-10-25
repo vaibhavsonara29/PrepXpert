@@ -62,7 +62,7 @@ export default function RecommendationPage() {
 
       try {
         const savedResume =
-          localStorage.getItem("prepxpert-resume");
+          localStorage.getItem("Smart Placement Preperation Portal-resume");
 
         if (savedResume) {
           resumeData = JSON.parse(savedResume);
@@ -335,7 +335,7 @@ export default function RecommendationPage() {
           <div style={styles.infoBox}>
             ℹ️ Your recommendation uses your
             verified aptitude result. When
-            available, PrepXpert also uses your
+            available, Smart Placement Preparation Portal also uses your
             connected LinkedIn profile and saved
             Resume Builder information to make
             career guidance more personalized.

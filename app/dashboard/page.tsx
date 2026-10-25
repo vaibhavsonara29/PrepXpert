@@ -162,7 +162,7 @@ export default function DashboardPage() {
                 fontSize: "32px",
               }}
             >
-              PrepXpert
+              Smart Placement Preparation Portal
             </h1>
 
             <p

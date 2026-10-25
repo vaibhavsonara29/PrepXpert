@@ -62,7 +62,7 @@ export default function RegisterPage() {
         <h1 style={headingStyle}>Create Account</h1>
 
         <p style={subheadingStyle}>
-          Create your PrepXpert account to start your placement journey.
+          Create your Smart Placement Preparation Portal account to start your placement journey.
         </p>
 
         <input

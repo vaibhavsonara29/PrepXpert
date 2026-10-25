@@ -520,7 +520,7 @@ ${
     // -----------------------------------------
 
     const prompt = `
-You are the AI Recommendation Engine of PrepXpert,
+You are the AI Recommendation Engine of Smart Placement Preperation Portal,
 a Smart Placement Preparation Portal for B.Tech CSE students.
 
 Create a personalized placement recommendation using ONLY

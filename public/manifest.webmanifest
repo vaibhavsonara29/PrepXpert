@@ -1,6 +1,6 @@
 {
-  "name": "PrepXpert",
-  "short_name": "PrepXpert",
+  "name": "Smart Placement Preparation Portal",
+  "short_name": "Smart Placement Preparation Portal",
   "description": "Smart Placement Preparation Portal",
   "start_url": "/",
   "display": "standalone",
